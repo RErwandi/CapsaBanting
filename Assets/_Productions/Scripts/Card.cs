@@ -13,5 +13,7 @@ namespace CapsaBanting
         
         [PreviewField(250, ObjectFieldAlignment.Center), HideLabel]
         public Sprite sprite;
+
+        public string CardName => $"{face} of {suit}";
     }
 }

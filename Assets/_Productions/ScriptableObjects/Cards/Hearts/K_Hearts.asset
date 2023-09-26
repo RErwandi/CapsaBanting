@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   face: 13
   suit: 3
-  sprite: {fileID: 0}
+  sprite: {fileID: 1610225162, guid: dadd7904096f615489a5d72f1afa4bfd, type: 3}
