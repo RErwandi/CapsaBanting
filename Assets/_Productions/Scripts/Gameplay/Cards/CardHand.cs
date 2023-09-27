@@ -1,18 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
+using UniRx;
 
 namespace CapsaBanting
 {
-    [System.Serializable]
+    [Serializable]
     public class CardHand
     {
-        public List<Card> cards = new();
+        public ReactiveCollection<Card> cards = new();
 
         public void AddCard(Card card)
         {
             cards.Add(card);
+        }
+        
+        public void RemoveCard(Card card)
+        {
+            cards.Remove(card);
         }
         
         public List<List<Card>> HasPair()
@@ -143,7 +148,14 @@ namespace CapsaBanting
 
             foreach (CardSuit suit in (CardSuit[])Enum.GetValues(typeof(CardSuit)))
             {
-                List<Card> cardsInSuit = cards.FindAll(card => card.suit == suit);
+                List<Card> cardsInSuit = new();
+                foreach (var card in cards)
+                {
+                    if (card.suit == suit)
+                    {
+                        cardsInSuit.Add(card);
+                    }
+                }
 
                 if (cardsInSuit.Count >= 5)
                 {
