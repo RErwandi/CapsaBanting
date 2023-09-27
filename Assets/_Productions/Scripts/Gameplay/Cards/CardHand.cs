@@ -20,36 +20,39 @@ namespace CapsaBanting
             cards.Remove(card);
         }
         
-        public List<List<Card>> HasPair()
+        public List<List<int>> HasPair()
         {
-            List<List<Card>> pairs = new List<List<Card>>();
-            Dictionary<CardFace, List<Card>> faceToCards = new Dictionary<CardFace, List<Card>>();
+            List<List<int>> pairList = new List<List<int>>();
+            Dictionary<CardFace, List<int>> faceToCards = new Dictionary<CardFace, List<int>>();
 
-            // Group the cards by face value
-            foreach (Card card in cards)
+            for (int i = 0; i < cards.Count; i++)
             {
+                Card card = cards[i];
                 if (!faceToCards.ContainsKey(card.face))
                 {
-                    faceToCards[card.face] = new List<Card>();
+                    faceToCards[card.face] = new List<int>();
                 }
-                faceToCards[card.face].Add(card);
+                faceToCards[card.face].Add(i);
             }
 
-            // Check for pairs (two or more cards with the same face)
             foreach (var kvp in faceToCards)
             {
                 if (kvp.Value.Count >= 2)
                 {
-                    List<Card> pair = kvp.Value;
-
-                    // Generate all unique combinations of pairs from the group
-                    List<List<Card>> combinations = GenerateCombinations(pair, 2);
-
-                    pairs.AddRange(combinations);
+                    // Generate all possible combinations of pairs
+                    List<int> cardIndexes = kvp.Value;
+                    for (int i = 0; i < cardIndexes.Count - 1; i++)
+                    {
+                        for (int j = i + 1; j < cardIndexes.Count; j++)
+                        {
+                            List<int> pair = new List<int> { cardIndexes[i], cardIndexes[j] };
+                            pairList.Add(pair);
+                        }
+                    }
                 }
             }
 
-            return pairs;
+            return pairList;
         }
         
         private List<List<Card>> GenerateCombinations(List<Card> cards, int k)

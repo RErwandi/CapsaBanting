@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CapsaBanting
 {
@@ -9,9 +11,11 @@ namespace CapsaBanting
     {
         [SerializeField] private CardView cardView;
         [SerializeField] private Transform cardsContainer;
+        [SerializeField] private LayoutGroup layoutGroup;
 
         private List<CardView> views = new();
-        private CardHand Hand => Blackboard.Controller.LocalPlayer.hand;
+        private Player LocalPlayer => Blackboard.Controller.LocalPlayer;
+        private CardHand Hand => LocalPlayer.hand;
 
         private void OnEnable()
         {
@@ -34,10 +38,16 @@ namespace CapsaBanting
         private void OnCardsChanged()
         {
             ResetCards();
-            foreach (var card in Hand.cards)
+            SetUpCards();
+        }
+
+        private void SetUpCards()
+        {
+            for (var i = 0; i < Hand.cards.Count; i++)
             {
+                var card = Hand.cards[i];
                 var view = Pool.Spawn(cardView, cardsContainer);
-                view.SetCard(card);
+                view.SetCard(card, i, LocalPlayer);
                 views.Add(view);
             }
         }
