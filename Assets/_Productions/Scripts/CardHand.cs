@@ -216,12 +216,22 @@ namespace CapsaBanting
             {
                 if (kvp.Value.Count >= 4)
                 {
-                    // Create combinations of 4 cards from the same face value
-                    List<List<Card>> combinations = GenerateCombinations(kvp.Value, 4);
+                    // Create a list for the four-of-a-kind
+                    List<Card> fourOfAKind = new List<Card>(kvp.Value);
 
-                    foreach (var combination in combinations)
+                    // Find any card that doesn't belong to the four-of-a-kind
+                    foreach (var otherKvp in faceToCards)
                     {
-                        fourOfAKindList.Add(new List<Card>(combination));
+                        if (otherKvp.Key != kvp.Key)
+                        {
+                            foreach (Card card in otherKvp.Value)
+                            {
+                                List<Card> fourOfAKindWithFifth = new List<Card>(fourOfAKind);
+                                fourOfAKindWithFifth.Add(card);
+                                fourOfAKindList.Add(fourOfAKindWithFifth);
+                            }
+                            break; // Add only one card from another face value
+                        }
                     }
                 }
             }
