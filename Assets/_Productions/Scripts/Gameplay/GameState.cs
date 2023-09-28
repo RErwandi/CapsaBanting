@@ -4,7 +4,6 @@ namespace CapsaBanting
     public class GameState
     {
         public CardHand lastPlayerHand = new();
-        public CardCombinationType lastCombinationType;
         public Player lastPlayerTurn;
     }
 }

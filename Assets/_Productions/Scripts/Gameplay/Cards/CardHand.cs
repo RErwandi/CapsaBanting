@@ -8,6 +8,57 @@ namespace CapsaBanting
     public class CardHand
     {
         public ReactiveCollection<Card> cards = new();
+        public CardCombinationType CombinationType
+        {
+            get
+            {
+                if (IsRoyalFlush)
+                    return CardCombinationType.RoyalFlush;
+
+                if (IsStraightFlush)
+                    return CardCombinationType.StraightFlush;
+
+                if (IsFourOfAKind)
+                    return CardCombinationType.FourOfAKind;
+
+                if (IsFullHouse)
+                    return CardCombinationType.FullHouse;
+
+                if (IsFlush)
+                    return CardCombinationType.Flush;
+
+                if (IsStraight)
+                    return CardCombinationType.Straight;
+
+                if (IsThreeOfKind)
+                    return CardCombinationType.Triple;
+
+                if (IsPair)
+                    return CardCombinationType.Pair;
+
+                if (IsSingle)
+                    return CardCombinationType.Single;
+
+                return CardCombinationType.Invalid;
+            }
+        }
+
+        public int HighCard
+        {
+            get
+            {
+                int highCard = 0;
+                foreach (var card in cards)
+                {
+                    if (card.GetValue() > highCard)
+                    {
+                        highCard = card.GetValue();
+                    }
+                }
+
+                return highCard;
+            }
+        }
 
         public bool IsSingle => cards.Count == 1;
         public bool IsPair => HasPair().Count >= 1;

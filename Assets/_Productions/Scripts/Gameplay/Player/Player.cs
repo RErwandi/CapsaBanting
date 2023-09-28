@@ -218,14 +218,13 @@ namespace CapsaBanting
                 NextSelect(maxIndex);
             }
         }
-
-        [Button]
-        private void DealSelected()
+        
+        public void DealSelected()
         {
             DealCards(selected.ToList());
+            selected.Clear();
         }
-
-        [Button]
+        
         private void DealCards(List<int> indexes)
         {
             var dealtHand = new CardHand();
@@ -242,6 +241,18 @@ namespace CapsaBanting
             }
 
             Blackboard.Controller.DealCards(this, dealtHand);
+        }
+
+        public CardHand GetSelectedCardHand()
+        {
+            var cardHand = new CardHand();
+            foreach (var i in selected)
+            {
+                var card = hand.cards[i];
+                cardHand.AddCard(card);
+            }
+
+            return cardHand;
         }
     }
 }

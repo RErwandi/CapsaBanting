@@ -78,41 +78,8 @@ namespace CapsaBanting
         {
             gameState.lastPlayerHand = hand;
             gameState.lastPlayerTurn = player;
-            gameState.lastCombinationType = DetermineCombinationType(hand);
             
             GameEvent.Trigger(Constants.EVENT_CARDS_DEALT);
-        }
-
-        private CardCombinationType DetermineCombinationType(CardHand hand)
-        {
-            if (hand.IsRoyalFlush)
-                return CardCombinationType.RoyalFlush;
-
-            if (hand.IsStraightFlush)
-                return CardCombinationType.StraightFlush;
-
-            if (hand.IsFourOfAKind)
-                return CardCombinationType.FourOfAKind;
-
-            if (hand.IsFullHouse)
-                return CardCombinationType.FullHouse;
-
-            if (hand.IsFlush)
-                return CardCombinationType.Flush;
-
-            if (hand.IsStraight)
-                return CardCombinationType.Straight;
-
-            if (hand.IsThreeOfKind)
-                return CardCombinationType.Triple;
-
-            if (hand.IsPair)
-                return CardCombinationType.Pair;
-
-            if (hand.IsSingle)
-                return CardCombinationType.Single;
-
-            return CardCombinationType.Invalid;
         }
     }
 }
