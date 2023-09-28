@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
-using Sirenix.Utilities;
 using UniRx;
 using UnityEngine;
 
@@ -9,34 +8,49 @@ namespace CapsaBanting
 {
     public class Player : MonoBehaviour
     {
-        public CardHand hand;
-        public ReactiveCollection<int> selected;
+        public IntReactiveProperty money = new();
+        public CardHand hand = new();
+        public ReactiveCollection<int> selected = new();
 
-        [ShowInInspector, ReadOnly] private List<List<int>> pairs = new ();
-        [ShowInInspector, ReadOnly] private List<List<int>> threes = new ();
-        [ShowInInspector, ReadOnly] private List<List<int>> straight = new ();
-        [ShowInInspector, ReadOnly] private List<List<int>> flush = new ();
-        [ShowInInspector, ReadOnly] private List<List<int>> fullHouse = new ();
-        [ShowInInspector, ReadOnly] private List<List<int>> fours = new ();
-        [ShowInInspector, ReadOnly] private List<List<int>> straightFlush = new ();
-        [ShowInInspector, ReadOnly] private List<List<int>> royalFlush = new ();
+        public BoolReactiveProperty hasPair = new();
+        public BoolReactiveProperty hasThree = new();
+        public BoolReactiveProperty hasStraight = new();
+        public BoolReactiveProperty hasFlush = new();
+        public BoolReactiveProperty hasFullHouse = new();
+        public BoolReactiveProperty hasFours = new();
+        public BoolReactiveProperty hasStraightFlush = new();
+        public BoolReactiveProperty hasRoyalFlush = new();
 
-        public ReactiveProperty<bool> hasPair;
-        public ReactiveProperty<bool> hasThree;
-        public ReactiveProperty<bool> hasStraight;
-        public ReactiveProperty<bool> hasFlush;
-        public ReactiveProperty<bool> hasFullHouse;
-        public ReactiveProperty<bool> hasFours;
-        public ReactiveProperty<bool> hasStraightFlush;
-        public ReactiveProperty<bool> hasRoyalFlush;
+        private List<List<int>> pairs = new ();
+        private List<List<int>> threes = new ();
+        private List<List<int>> straight = new ();
+        private List<List<int>> flush = new ();
+        private List<List<int>> fullHouse = new ();
+        private List<List<int>> fours = new ();
+        private List<List<int>> straightFlush = new ();
+        private List<List<int>> royalFlush = new ();
 
         private int iSelect = -1;
         private int iCategory = 0;
+        private GameController controller;
         
-        private void Start()
+        public void Initialize(GameController controller, int money)
         {
+            this.controller = controller;
+            this.money.Value = money;
+            
             hand.cards.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(_ => CheckHand());
             CheckHand();
+        }
+
+        public void AddMoney(int amount)
+        {
+            money.Value += amount;
+        }
+
+        public void SubtractMoney(int amount)
+        {
+            money.Value -= amount;
         }
 
         public void AddCard(Card card)
@@ -82,8 +96,7 @@ namespace CapsaBanting
                 selected.Add(index);
             }
         }
-
-        [Button, HideInEditorMode]
+        
         private void CheckHand()
         {
             iSelect = -1;
@@ -204,6 +217,31 @@ namespace CapsaBanting
             {
                 NextSelect(maxIndex);
             }
+        }
+
+        [Button]
+        private void DealSelected()
+        {
+            DealCards(selected.ToList());
+        }
+
+        [Button]
+        private void DealCards(List<int> indexes)
+        {
+            var dealtHand = new CardHand();
+            
+            foreach (var index in indexes)
+            {
+                var card = hand.GetCardByIndex(index);
+                dealtHand.AddCard(card);
+            }
+
+            foreach (var card in dealtHand.cards)
+            {
+                RemoveCard(card);
+            }
+
+            Blackboard.Controller.DealCards(this, dealtHand);
         }
     }
 }

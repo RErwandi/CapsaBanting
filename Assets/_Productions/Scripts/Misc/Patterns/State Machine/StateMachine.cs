@@ -1,15 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Sirenix.OdinInspector;
+using UniRx;
 using UnityEngine;
 
 namespace CapsaBanting
 {
     public class StateMachine : MonoBehaviour
     {
-        public string defaultState;
+        [ValueDropdown("states")]
+        public State defaultState;
         public State[] states = Array.Empty<State>();
-            
-        public State CurrentState { get; private set; }
+
+        [ShowInInspector, ReadOnly]
+        public ReactiveProperty<State> currentState = new ReactiveProperty<State>();
     
         private void Start()
         {
@@ -19,7 +24,7 @@ namespace CapsaBanting
                     state.gameObject.SetActive(false);
             }
                 
-            SetState(defaultState);
+            SetState(defaultState.StateName);
         }
 
         /// <summary>
@@ -32,15 +37,15 @@ namespace CapsaBanting
     
             if(newState != null)
             {
-                if (CurrentState != null)
+                if (currentState.Value != null)
                 {
-                    CurrentState.onStateExit?.Invoke();
-                    CurrentState.gameObject.SetActive(false);
+                    currentState.Value.onStateExit?.Invoke();
+                    currentState.Value.gameObject.SetActive(false);
                 }
     
                 newState.gameObject.SetActive(true);
-                CurrentState = newState;
-                CurrentState.onStateEnter?.Invoke();
+                currentState.Value = newState;
+                currentState.Value.onStateEnter?.Invoke();
             }
             else
                 Debug.Log($"{gameObject.name} : Trying to set unknown state {stateName}");

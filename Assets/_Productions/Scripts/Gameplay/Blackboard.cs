@@ -5,6 +5,8 @@ namespace CapsaBanting
 {
     public class Blackboard : Singleton<Blackboard>
     {
+        protected override bool IsPersistBetweenScenes => false;
+        
         [SerializeField] private GameController gameController;
         public static GameController Controller => Instance.gameController;
 

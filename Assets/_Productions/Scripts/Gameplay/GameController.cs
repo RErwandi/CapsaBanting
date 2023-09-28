@@ -21,6 +21,9 @@ namespace CapsaBanting
         private List<Player> players = new();
         private Deck deck;
         
+        [ShowInInspector, ReadOnly] private GameState gameState = new();
+        public GameState GameState => gameState;
+        
         public Player LocalPlayer { get; set; }
 
         public void Initialize()
@@ -28,6 +31,7 @@ namespace CapsaBanting
             InitiateDeck();
             InitiatePlayers();
             GiveCardsToPlayers();
+            InitiateGame();
         }
 
         private void InitiatePlayers()
@@ -36,6 +40,7 @@ namespace CapsaBanting
             {
                 var player = Instantiate(playerPrefab, transform);
                 player.gameObject.name = $"Player {i + 1}";
+                player.Initialize(this, initialMoney);
                 players.Add(player);
 
                 if (i == 0)
@@ -62,6 +67,52 @@ namespace CapsaBanting
                     player.AddCard(card);
                 }
             }
+        }
+
+        private void InitiateGame()
+        {
+            
+        }
+
+        public void DealCards(Player player, CardHand hand)
+        {
+            gameState.lastPlayerHand = hand;
+            gameState.lastPlayerTurn = player;
+            gameState.lastCombinationType = DetermineCombinationType(hand);
+            
+            GameEvent.Trigger(Constants.EVENT_CARDS_DEALT);
+        }
+
+        private CardCombinationType DetermineCombinationType(CardHand hand)
+        {
+            if (hand.IsRoyalFlush)
+                return CardCombinationType.RoyalFlush;
+
+            if (hand.IsStraightFlush)
+                return CardCombinationType.StraightFlush;
+
+            if (hand.IsFourOfAKind)
+                return CardCombinationType.FourOfAKind;
+
+            if (hand.IsFullHouse)
+                return CardCombinationType.FullHouse;
+
+            if (hand.IsFlush)
+                return CardCombinationType.Flush;
+
+            if (hand.IsStraight)
+                return CardCombinationType.Straight;
+
+            if (hand.IsThreeOfKind)
+                return CardCombinationType.Triple;
+
+            if (hand.IsPair)
+                return CardCombinationType.Pair;
+
+            if (hand.IsSingle)
+                return CardCombinationType.Single;
+
+            return CardCombinationType.Invalid;
         }
     }
 }

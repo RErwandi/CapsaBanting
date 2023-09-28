@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UniRx;
 
 namespace CapsaBanting
@@ -9,6 +8,16 @@ namespace CapsaBanting
     public class CardHand
     {
         public ReactiveCollection<Card> cards = new();
+
+        public bool IsSingle => cards.Count == 1;
+        public bool IsPair => HasPair().Count >= 1;
+        public bool IsThreeOfKind => HasThreeOfAKind().Count >= 1;
+        public bool IsStraight => HasStraight().Count >= 1;
+        public bool IsFlush => HasFlush().Count >= 1;
+        public bool IsFullHouse => HasFullHouse().Count >= 1;
+        public bool IsFourOfAKind => HasFourOfAKind().Count >= 1;
+        public bool IsStraightFlush => HasStraightFlush().Count >= 1;
+        public bool IsRoyalFlush => HasRoyalFlush().Count >= 1;
 
         public void AddCard(Card card)
         {
@@ -19,7 +28,12 @@ namespace CapsaBanting
         {
             cards.Remove(card);
         }
-        
+
+        public Card GetCardByIndex(int index)
+        {
+            return cards[index];
+        }
+
         public List<List<int>> HasPair()
         {
             List<List<int>> pairList = new List<List<int>>();
@@ -53,29 +67,6 @@ namespace CapsaBanting
             }
 
             return pairList;
-        }
-        
-        public static List<List<int>> GenerateCombinations(List<int> elements, int k)
-        {
-            List<List<int>> combinations = new List<List<int>>();
-            GenerateCombinationsHelper(elements, k, 0, new List<int>(), combinations);
-            return combinations;
-        }
-
-        private static void GenerateCombinationsHelper(List<int> elements, int k, int start, List<int> currentCombination, List<List<int>> combinations)
-        {
-            if (k == 0)
-            {
-                combinations.Add(new List<int>(currentCombination));
-                return;
-            }
-
-            for (int i = start; i < elements.Count; i++)
-            {
-                currentCombination.Add(elements[i]);
-                GenerateCombinationsHelper(elements, k - 1, i + 1, currentCombination, combinations);
-                currentCombination.RemoveAt(currentCombination.Count - 1);
-            }
         }
         
         public List<List<int>> HasThreeOfAKind()
@@ -350,6 +341,29 @@ namespace CapsaBanting
             }
 
             return royalFlushList;
+        }
+        
+        private static List<List<int>> GenerateCombinations(List<int> elements, int k)
+        {
+            List<List<int>> combinations = new List<List<int>>();
+            GenerateCombinationsHelper(elements, k, 0, new List<int>(), combinations);
+            return combinations;
+        }
+
+        private static void GenerateCombinationsHelper(List<int> elements, int k, int start, List<int> currentCombination, List<List<int>> combinations)
+        {
+            if (k == 0)
+            {
+                combinations.Add(new List<int>(currentCombination));
+                return;
+            }
+
+            for (int i = start; i < elements.Count; i++)
+            {
+                currentCombination.Add(elements[i]);
+                GenerateCombinationsHelper(elements, k - 1, i + 1, currentCombination, combinations);
+                currentCombination.RemoveAt(currentCombination.Count - 1);
+            }
         }
     }
 }

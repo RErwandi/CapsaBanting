@@ -24,4 +24,18 @@ namespace CapsaBanting
         Hearts = 3,
         Spades = 4
     }
+    
+    public enum CardCombinationType
+    {
+        Invalid,
+        Single,
+        Pair,
+        Triple,
+        Straight,
+        Flush,
+        FullHouse,
+        FourOfAKind,
+        StraightFlush,
+        RoyalFlush
+    }
 }

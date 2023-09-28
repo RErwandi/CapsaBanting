@@ -40,13 +40,13 @@ namespace CapsaBanting
             }
         }
 
-        public void SetCard(Card card, int index, Player player)
+        public void SetCard(Card card, int index, Player player = null)
         {
             image.sprite = card.sprite;
             this.player = player;
             this.index = index;
 
-            if (!isInitialized)
+            if (!isInitialized && player != null)
             {
                 player.selected.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(_ => CheckSelected());
                 isInitialized = true;
@@ -55,6 +55,8 @@ namespace CapsaBanting
 
         private void CheckSelected()
         {
+            if (player == null) return;
+            
             if (player.selected.Contains(index))
             {
                 rect.DOAnchorPosY(100f, 0.2f).SetEase(Ease.Linear);
