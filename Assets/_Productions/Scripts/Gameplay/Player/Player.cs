@@ -13,13 +13,13 @@ namespace CapsaBanting
         public ReactiveCollection<int> selected;
 
         [ShowInInspector, ReadOnly] private List<List<int>> pairs = new ();
-        [ShowInInspector, ReadOnly] private List<List<Card>> threes = new ();
-        [ShowInInspector, ReadOnly] private List<List<Card>> straight = new ();
-        [ShowInInspector, ReadOnly] private List<List<Card>> flush = new ();
-        [ShowInInspector, ReadOnly] private List<List<Card>> fullHouse = new ();
-        [ShowInInspector, ReadOnly] private List<List<Card>> fours = new ();
-        [ShowInInspector, ReadOnly] private List<List<Card>> straightFlush = new ();
-        [ShowInInspector, ReadOnly] private List<List<Card>> royalFlush = new ();
+        [ShowInInspector, ReadOnly] private List<List<int>> threes = new ();
+        [ShowInInspector, ReadOnly] private List<List<int>> straight = new ();
+        [ShowInInspector, ReadOnly] private List<List<int>> flush = new ();
+        [ShowInInspector, ReadOnly] private List<List<int>> fullHouse = new ();
+        [ShowInInspector, ReadOnly] private List<List<int>> fours = new ();
+        [ShowInInspector, ReadOnly] private List<List<int>> straightFlush = new ();
+        [ShowInInspector, ReadOnly] private List<List<int>> royalFlush = new ();
 
         public ReactiveProperty<bool> hasPair;
         public ReactiveProperty<bool> hasThree;
@@ -126,6 +126,62 @@ namespace CapsaBanting
 
             CheckCategory(1, pairs.Count);
             SelectCards(pairs[iSelect]);
+        }
+
+        public void SelectThrees()
+        {
+            if (!hasThree.Value) return;
+
+            CheckCategory(2, threes.Count);
+            SelectCards(threes[iSelect]);
+        }
+
+        public void SelectStraight()
+        {
+            if (!hasStraight.Value) return;
+
+            CheckCategory(3, straight.Count);
+            SelectCards(straight[iSelect]);
+        }
+        
+        public void SelectFlush()
+        {
+            if (!hasFlush.Value) return;
+
+            CheckCategory(4, flush.Count);
+            SelectCards(flush[iSelect]);
+        }
+        
+        public void SelectFullHouse()
+        {
+            if (!hasFullHouse.Value) return;
+
+            CheckCategory(5, fullHouse.Count);
+            SelectCards(fullHouse[iSelect]);
+        }
+        
+        public void SelectFours()
+        {
+            if (!hasFours.Value) return;
+
+            CheckCategory(6, fours.Count);
+            SelectCards(fours[iSelect]);
+        }
+        
+        public void SelectStraightFlush()
+        {
+            if (!hasStraightFlush.Value) return;
+
+            CheckCategory(7, straightFlush.Count);
+            SelectCards(straightFlush[iSelect]);
+        }
+        
+        public void SelectRoyalFlush()
+        {
+            if (!hasRoyalFlush.Value) return;
+
+            CheckCategory(8, royalFlush.Count);
+            SelectCards(royalFlush[iSelect]);
         }
 
         private void NextSelect(int maxIndex)

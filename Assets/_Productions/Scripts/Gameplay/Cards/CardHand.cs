@@ -55,65 +55,70 @@ namespace CapsaBanting
             return pairList;
         }
         
-        private List<List<Card>> GenerateCombinations(List<Card> cards, int k)
+        public static List<List<int>> GenerateCombinations(List<int> elements, int k)
         {
-            List<List<Card>> result = new List<List<Card>>();
-            List<Card> combination = new List<Card>();
-            GenerateCombinationsHelper(cards, k, 0, combination, result);
-            return result;
+            List<List<int>> combinations = new List<List<int>>();
+            GenerateCombinationsHelper(elements, k, 0, new List<int>(), combinations);
+            return combinations;
         }
 
-        private void GenerateCombinationsHelper(List<Card> cards, int k, int start, List<Card> combination, List<List<Card>> result)
+        private static void GenerateCombinationsHelper(List<int> elements, int k, int start, List<int> currentCombination, List<List<int>> combinations)
         {
-            if (combination.Count == k)
+            if (k == 0)
             {
-                result.Add(new List<Card>(combination));
+                combinations.Add(new List<int>(currentCombination));
                 return;
             }
 
-            for (int i = start; i < cards.Count; i++)
+            for (int i = start; i < elements.Count; i++)
             {
-                combination.Add(cards[i]);
-                GenerateCombinationsHelper(cards, k, i + 1, combination, result);
-                combination.RemoveAt(combination.Count - 1);
+                currentCombination.Add(elements[i]);
+                GenerateCombinationsHelper(elements, k - 1, i + 1, currentCombination, combinations);
+                currentCombination.RemoveAt(currentCombination.Count - 1);
             }
         }
         
-        public List<List<Card>> HasThreeOfAKind()
+        public List<List<int>> HasThreeOfAKind()
         {
-            List<List<Card>> threeOfAKindList = new List<List<Card>>();
-            Dictionary<CardFace, List<Card>> faceToCards = new Dictionary<CardFace, List<Card>>();
+            List<List<int>> threeOfAKindList = new List<List<int>>();
+            Dictionary<CardFace, List<int>> faceToCards = new Dictionary<CardFace, List<int>>();
 
-            // Group the cards by face value
-            foreach (Card card in cards)
+            for (int i = 0; i < cards.Count; i++)
             {
+                Card card = cards[i];
                 if (!faceToCards.ContainsKey(card.face))
                 {
-                    faceToCards[card.face] = new List<Card>();
+                    faceToCards[card.face] = new List<int>();
                 }
-                faceToCards[card.face].Add(card);
+                faceToCards[card.face].Add(i);
             }
 
-            // Check for three-of-a-kind (three or more cards with the same face)
             foreach (var kvp in faceToCards)
             {
                 if (kvp.Value.Count >= 3)
                 {
-                    List<Card> threeOfAKind = kvp.Value;
-
-                    // Generate all unique combinations of three-of-a-kind from the group
-                    List<List<Card>> combinations = GenerateCombinations(threeOfAKind, 3);
-
-                    threeOfAKindList.AddRange(combinations);
+                    // Generate all possible combinations of three-of-a-kind
+                    List<int> cardIndexes = kvp.Value;
+                    for (int i = 0; i < cardIndexes.Count - 2; i++)
+                    {
+                        for (int j = i + 1; j < cardIndexes.Count - 1; j++)
+                        {
+                            for (int k = j + 1; k < cardIndexes.Count; k++)
+                            {
+                                List<int> threeOfAKind = new List<int> { cardIndexes[i], cardIndexes[j], cardIndexes[k] };
+                                threeOfAKindList.Add(threeOfAKind);
+                            }
+                        }
+                    }
                 }
             }
 
             return threeOfAKindList;
         }
 
-        public List<List<Card>> HasStraight()
+        public List<List<int>> HasStraight()
         {
-            List<List<Card>> straightList = new List<List<Card>>();
+            List<List<int>> straightList = new List<List<int>>();
             List<Card> sortedCards = new List<Card>(cards);
             sortedCards.Sort((card1, card2) => card1.face.CompareTo(card2.face));
 
@@ -128,10 +133,10 @@ namespace CapsaBanting
                     if (consecutiveCount >= 5)
                     {
                         // Create a new list for the straight
-                        List<Card> straight = new List<Card>();
+                        List<int> straight = new List<int>();
                         for (int j = i - 4; j <= i; j++)
                         {
-                            straight.Add(sortedCards[j]);
+                            straight.Add(cards.IndexOf(sortedCards[j]));
                         }
                         straightList.Add(straight);
                     }
@@ -145,25 +150,26 @@ namespace CapsaBanting
             return straightList;
         }
         
-        public List<List<Card>> HasFlush()
+        public List<List<int>> HasFlush()
         {
-            List<List<Card>> flushList = new List<List<Card>>();
+            List<List<int>> flushList = new List<List<int>>();
 
             foreach (CardSuit suit in (CardSuit[])Enum.GetValues(typeof(CardSuit)))
             {
-                List<Card> cardsInSuit = new();
-                foreach (var card in cards)
+                List<int> cardsInSuitIndexes = new List<int>();
+
+                for (int i = 0; i < cards.Count; i++)
                 {
-                    if (card.suit == suit)
+                    if (cards[i].suit == suit)
                     {
-                        cardsInSuit.Add(card);
+                        cardsInSuitIndexes.Add(i);
                     }
                 }
 
-                if (cardsInSuit.Count >= 5)
+                if (cardsInSuitIndexes.Count >= 5)
                 {
-                    // Create combinations of 5 cards from the same suit
-                    List<List<Card>> combinations = GenerateCombinations(cardsInSuit, 5);
+                    // Generate all possible combinations of flushes
+                    List<List<int>> combinations = GenerateCombinations(cardsInSuitIndexes, 5);
 
                     flushList.AddRange(combinations);
                 }
@@ -172,19 +178,20 @@ namespace CapsaBanting
             return flushList;
         }
         
-        public List<List<Card>> HasFullHouse()
+        public List<List<int>> HasFullHouse()
         {
-            List<List<Card>> fullHouseList = new List<List<Card>>();
-            Dictionary<CardFace, List<Card>> faceToCards = new Dictionary<CardFace, List<Card>>();
+            List<List<int>> fullHouseList = new List<List<int>>();
+            Dictionary<CardFace, List<int>> faceToCards = new Dictionary<CardFace, List<int>>();
 
             // Group the cards by face value
-            foreach (Card card in cards)
+            for (int i = 0; i < cards.Count; i++)
             {
+                Card card = cards[i];
                 if (!faceToCards.ContainsKey(card.face))
                 {
-                    faceToCards[card.face] = new List<Card>();
+                    faceToCards[card.face] = new List<int>();
                 }
-                faceToCards[card.face].Add(card);
+                faceToCards[card.face].Add(i);
             }
 
             // Check for three-of-a-kind and pairs
@@ -196,12 +203,18 @@ namespace CapsaBanting
                     {
                         if (pairKvp.Value.Count >= 2 && pairKvp.Key != threeOfAKindKvp.Key)
                         {
-                            List<Card> fullHouse = new List<Card>(threeOfAKindKvp.Value.Take(3));
-                            fullHouse.AddRange(pairKvp.Value.Take(2));
+                            // Generate all possible combinations of full houses
+                            List<List<int>> threeOfAKindCombinations = GenerateCombinations(threeOfAKindKvp.Value, 3);
+                            List<List<int>> pairCombinations = GenerateCombinations(pairKvp.Value, 2);
 
-                            if (fullHouse.Count == 5) // Ensure exactly 5 cards in the combination
+                            foreach (var threeOfAKindCombo in threeOfAKindCombinations)
                             {
-                                fullHouseList.Add(fullHouse);
+                                foreach (var pairCombo in pairCombinations)
+                                {
+                                    List<int> fullHouseCombo = new List<int>(threeOfAKindCombo);
+                                    fullHouseCombo.AddRange(pairCombo);
+                                    fullHouseList.Add(fullHouseCombo);
+                                }
                             }
                         }
                     }
@@ -211,19 +224,20 @@ namespace CapsaBanting
             return fullHouseList;
         }
         
-        public List<List<Card>> HasFourOfAKind()
+        public List<List<int>> HasFourOfAKind()
         {
-            List<List<Card>> fourOfAKindList = new List<List<Card>>();
-            Dictionary<CardFace, List<Card>> faceToCards = new Dictionary<CardFace, List<Card>>();
+            List<List<int>> fourOfAKindList = new List<List<int>>();
+            Dictionary<CardFace, List<int>> faceToCards = new Dictionary<CardFace, List<int>>();
 
             // Group the cards by face value
-            foreach (Card card in cards)
+            for (int i = 0; i < cards.Count; i++)
             {
+                Card card = cards[i];
                 if (!faceToCards.ContainsKey(card.face))
                 {
-                    faceToCards[card.face] = new List<Card>();
+                    faceToCards[card.face] = new List<int>();
                 }
-                faceToCards[card.face].Add(card);
+                faceToCards[card.face].Add(i);
             }
 
             // Check for four-of-a-kind (four or more cards with the same face)
@@ -231,21 +245,24 @@ namespace CapsaBanting
             {
                 if (kvp.Value.Count >= 4)
                 {
-                    // Create a list for the four-of-a-kind
-                    List<Card> fourOfAKind = new List<Card>(kvp.Value);
+                    // Generate all possible combinations of four-of-a-kind
+                    List<List<int>> combinations = GenerateCombinations(kvp.Value, 4);
 
-                    // Find any card that doesn't belong to the four-of-a-kind
-                    foreach (var otherKvp in faceToCards)
+                    foreach (var combination in combinations)
                     {
-                        if (otherKvp.Key != kvp.Key)
+                        // Find any card that doesn't belong to the four-of-a-kind
+                        foreach (var otherKvp in faceToCards)
                         {
-                            foreach (Card card in otherKvp.Value)
+                            if (otherKvp.Key != kvp.Key)
                             {
-                                List<Card> fourOfAKindWithFifth = new List<Card>(fourOfAKind);
-                                fourOfAKindWithFifth.Add(card);
-                                fourOfAKindList.Add(fourOfAKindWithFifth);
+                                foreach (int cardIndex in otherKvp.Value)
+                                {
+                                    List<int> fourOfAKindCombo = new List<int>(combination);
+                                    fourOfAKindCombo.Add(cardIndex);
+                                    fourOfAKindList.Add(fourOfAKindCombo);
+                                }
+                                break; // Add only one card from another face value
                             }
-                            break; // Add only one card from another face value
                         }
                     }
                 }
@@ -254,30 +271,30 @@ namespace CapsaBanting
             return fourOfAKindList;
         }
         
-        public List<List<Card>> HasStraightFlush()
+        public List<List<int>> HasStraightFlush()
         {
-            List<List<Card>> straightFlushList = new List<List<Card>>();
+            List<List<int>> straightFlushList = new List<List<int>>();
 
             // First, check for flushes
-            List<List<Card>> flushes = HasFlush();
+            List<List<int>> flushes = HasFlush();
 
             foreach (var flush in flushes)
             {
-                List<Card> sortedFlush = new List<Card>(flush);
-                sortedFlush.Sort((card1, card2) => card1.face.CompareTo(card2.face));
+                List<int> sortedFlush = new List<int>(flush);
+                sortedFlush.Sort((index1, index2) => cards[index1].face.CompareTo(cards[index2].face));
 
                 int consecutiveCount = 1; // Number of consecutive cards
 
                 for (int i = 1; i < sortedFlush.Count; i++)
                 {
-                    if (sortedFlush[i].face == sortedFlush[i - 1].face + 1)
+                    if (cards[sortedFlush[i]].face == cards[sortedFlush[i - 1]].face + 1)
                     {
                         consecutiveCount++;
 
                         if (consecutiveCount >= 5)
                         {
                             // Create a new list for the straight flush
-                            List<Card> straightFlush = new List<Card>();
+                            List<int> straightFlush = new List<int>();
                             for (int j = i - 4; j <= i; j++)
                             {
                                 straightFlush.Add(sortedFlush[j]);
@@ -285,7 +302,7 @@ namespace CapsaBanting
                             straightFlushList.Add(straightFlush);
                         }
                     }
-                    else if (sortedFlush[i].face != sortedFlush[i - 1].face + 1)
+                    else if (cards[sortedFlush[i]].face != cards[sortedFlush[i - 1]].face + 1)
                     {
                         consecutiveCount = 1;
                     }
@@ -295,26 +312,40 @@ namespace CapsaBanting
             return straightFlushList;
         }
         
-        public List<List<Card>> HasRoyalFlush()
+        public List<List<int>> HasRoyalFlush()
         {
-            List<List<Card>> royalFlushList = new List<List<Card>>();
-    
+            List<List<int>> royalFlushList = new List<List<int>>();
+
             // First, check for flushes
-            List<List<Card>> flushes = HasFlush();
-    
+            List<List<int>> flushes = HasFlush();
+
             foreach (var flush in flushes)
             {
                 // Sort the flush cards by face value
-                flush.Sort((card1, card2) => card1.face.CompareTo(card2.face));
-        
+                List<int> sortedFlush = new List<int>(flush);
+                sortedFlush.Sort((index1, index2) => cards[index1].face.CompareTo(cards[index2].face));
+
                 // Check if the flush contains 10, Jack, Queen, King, Ace
-                if (flush.Any(card => card.face == CardFace.Ten) &&
-                    flush.Any(card => card.face == CardFace.Jack) &&
-                    flush.Any(card => card.face == CardFace.Queen) &&
-                    flush.Any(card => card.face == CardFace.King) &&
-                    flush.Any(card => card.face == CardFace.Ace))
+                bool hasTen = false, hasJack = false, hasQueen = false, hasKing = false, hasAce = false;
+
+                foreach (int index in sortedFlush)
                 {
-                    royalFlushList.Add(flush);
+                    Card card = cards[index];
+                    if (card.face == CardFace.Ten)
+                        hasTen = true;
+                    else if (card.face == CardFace.Jack)
+                        hasJack = true;
+                    else if (card.face == CardFace.Queen)
+                        hasQueen = true;
+                    else if (card.face == CardFace.King)
+                        hasKing = true;
+                    else if (card.face == CardFace.Ace)
+                        hasAce = true;
+                }
+
+                if (hasTen && hasJack && hasQueen && hasKing && hasAce)
+                {
+                    royalFlushList.Add(sortedFlush);
                 }
             }
 

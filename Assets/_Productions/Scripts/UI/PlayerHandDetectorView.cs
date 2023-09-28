@@ -24,6 +24,13 @@ namespace CapsaBanting
             EventManager.AddListener(this);
             singleButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => SingleClicked());
             pairButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => PairClicked());
+            threeButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => ThreeClicked());
+            straightButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => StraightClicked());
+            flushButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => FlushClicked());
+            fullHouseButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => FullHouseClicked());
+            fourButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => FoursClicked());
+            straightFlushButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => StraightFlushClicked());
+            royalFlushButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => RoyalFlushClicked());
         }
 
         private void OnDisable()
@@ -100,6 +107,40 @@ namespace CapsaBanting
         private void PairClicked()
         {
             player.SelectPair();
+        }
+
+        private void ThreeClicked()
+        {
+            player.SelectThrees();
+        }
+
+        private void StraightClicked()
+        {
+            player.SelectStraight();
+        }
+        private void FlushClicked()
+        {
+            player.SelectFlush();
+        }
+        
+        private void FullHouseClicked()
+        {
+            player.SelectFullHouse();
+        }
+        
+        private void FoursClicked()
+        {
+            player.SelectFours();
+        }
+        
+        private void StraightFlushClicked()
+        {
+            player.SelectStraightFlush();
+        }
+        
+        private void RoyalFlushClicked()
+        {
+            player.SelectRoyalFlush();
         }
     }
 }
