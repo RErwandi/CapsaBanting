@@ -9,6 +9,7 @@ namespace CapsaBanting
 {
     public class Player : MonoBehaviour, IEventListener<GameEvent>
     {
+        public StringReactiveProperty playerName = new();
         public IntReactiveProperty money = new();
         public CardHand hand = new();
         public ReactiveCollection<int> selected = new();

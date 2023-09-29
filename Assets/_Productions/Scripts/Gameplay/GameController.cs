@@ -49,10 +49,12 @@ namespace CapsaBanting
                 if (i == 0)
                 {
                     Blackboard.LocalPlayer = player;
+                    player.playerName.Value = "You";
                 }
                 else
                 {
                     Blackboard.AI.AIPlayers.Add(player);
+                    player.playerName.Value = $"Computer {i}";
                 }
             }
         }
