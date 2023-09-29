@@ -17,14 +17,17 @@ namespace CapsaBanting
         [SerializeField, Required] private Player playerPrefab;
         [BoxGroup("Required")]
         [SerializeField, Required] private Deck deckTemplate;
+        [BoxGroup("Required")]
+        [SerializeField, Required] private StateMachine stateMachine;
 
         private List<Player> players = new();
         private Deck deck;
+        private int iTurn;
         
         [ShowInInspector, ReadOnly] private GameState gameState = new();
         public GameState GameState => gameState;
-        
-        public Player LocalPlayer { get; set; }
+
+        public StateMachine StateMachine => stateMachine;
 
         public void Initialize()
         {
@@ -40,12 +43,16 @@ namespace CapsaBanting
             {
                 var player = Instantiate(playerPrefab, transform);
                 player.gameObject.name = $"Player {i + 1}";
-                player.Initialize(this, initialMoney);
+                player.Initialize(this, initialMoney, i);
                 players.Add(player);
 
                 if (i == 0)
                 {
-                    LocalPlayer = player;
+                    Blackboard.LocalPlayer = player;
+                }
+                else
+                {
+                    Blackboard.AI.AIPlayers.Add(player);
                 }
             }
         }
@@ -71,15 +78,33 @@ namespace CapsaBanting
 
         private void InitiateGame()
         {
-            
+            iTurn = 0;
+            CheckTurn();
         }
 
-        public void DealCards(Player player, CardHand hand)
+        private void CheckTurn()
+        {
+            stateMachine.SetState(iTurn == 0 ? "Player Turn" : "Enemy Turn");
+        }
+        
+        private void NextTurn()
+        {
+            iTurn++;
+            if (iTurn > players.Count)
+            {
+                iTurn = 0;
+            }
+            
+            CheckTurn();
+        }
+
+        public void DealCards(int playerIndex, CardHand hand)
         {
             gameState.lastPlayerHand = hand;
-            gameState.lastPlayerTurn = player;
+            gameState.lastPlayerTurn = playerIndex;
             
             GameEvent.Trigger(Constants.EVENT_CARDS_DEALT);
+            NextTurn();
         }
     }
 }

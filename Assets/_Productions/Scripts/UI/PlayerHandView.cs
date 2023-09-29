@@ -14,7 +14,7 @@ namespace CapsaBanting
         [SerializeField] private LayoutGroup layoutGroup;
 
         private List<CardView> views = new();
-        private Player LocalPlayer => Blackboard.Controller.LocalPlayer;
+        private Player LocalPlayer => Blackboard.LocalPlayer;
         private CardHand Hand => LocalPlayer.hand;
 
         private void OnEnable()

@@ -11,7 +11,7 @@ namespace CapsaBanting
         [SerializeField] private TextMeshProUGUI moneyText;
         [SerializeField] private Image profileImage;
         
-        private Player LocalPlayer => Blackboard.Controller.LocalPlayer;
+        private Player LocalPlayer => Blackboard.LocalPlayer;
         
         private void OnEnable()
         {

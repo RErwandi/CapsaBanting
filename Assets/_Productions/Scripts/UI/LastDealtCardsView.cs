@@ -10,7 +10,7 @@ namespace CapsaBanting
         [SerializeField] private Transform cardsContainer;
         
         private List<CardView> views = new();
-        private CardHand Hand => Blackboard.Controller.GameState.lastPlayerHand;
+        private CardHand Hand => Blackboard.Game.GameState.lastPlayerHand;
 
         private void OnEnable()
         {

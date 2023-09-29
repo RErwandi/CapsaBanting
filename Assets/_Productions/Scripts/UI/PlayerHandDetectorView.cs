@@ -40,7 +40,7 @@ namespace CapsaBanting
 
         private void Subscribe()
         {
-            player = Blackboard.Controller.LocalPlayer;
+            player = Blackboard.LocalPlayer;
             player.hasPair.TakeUntilDestroy(this).Subscribe(OnHasPairChanged);
             player.hasThree.TakeUntilDestroy(this).Subscribe(OnHasThreeChanged);
             player.hasStraight.TakeUntilDestroy(this).Subscribe(OnHasStraightChanged);

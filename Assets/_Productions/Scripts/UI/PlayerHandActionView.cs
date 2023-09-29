@@ -7,9 +7,10 @@ namespace CapsaBanting
     public class PlayerHandActionView : MonoBehaviour, IEventListener<GameEvent>
     {
         [SerializeField] private Button passButton;
+        [SerializeField] private GameObject passIndicator;
         [SerializeField] private Button submitButton;
         
-        private Player LocalPlayer => Blackboard.Controller.LocalPlayer;
+        private Player LocalPlayer => Blackboard.LocalPlayer;
 
         private void OnEnable()
         {
@@ -25,12 +26,13 @@ namespace CapsaBanting
         private void Subscribe()
         {
             LocalPlayer.selected.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(_ => OnSelectedChanged());
+            LocalPlayer.canDealtAny.TakeUntilDestroy(this).Subscribe(OnCanDealtChanged);
         }
 
         private void OnSelectedChanged()
         {
             var hand = LocalPlayer.GetSelectedCardHand();
-            var table = Blackboard.Controller.GameState.lastPlayerHand;
+            var table = Blackboard.Game.GameState.lastPlayerHand;
 
             if (table.CombinationType == CardCombinationType.Invalid)
             {
@@ -40,6 +42,11 @@ namespace CapsaBanting
             {
                 submitButton.interactable = hand.CombinationType == table.CombinationType && hand.HighCard > table.HighCard;
             }
+        }
+
+        private void OnCanDealtChanged(bool value)
+        {
+            passIndicator.SetActive(!value);
         }
         
         public void OnEvent(GameEvent e)

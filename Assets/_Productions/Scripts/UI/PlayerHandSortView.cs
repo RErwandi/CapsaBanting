@@ -13,9 +13,9 @@ namespace CapsaBanting
         private void OnEnable()
         {
             resetButton.OnClickAsObservable().TakeUntilDisable(this)
-                .Subscribe(_ => Blackboard.Controller.LocalPlayer.ResetSelected());
+                .Subscribe(_ => Blackboard.LocalPlayer.ResetSelected());
             sortButton.OnClickAsObservable().TakeUntilDisable(this)
-                .Subscribe(_ => Blackboard.Controller.LocalPlayer.SortCards());
+                .Subscribe(_ => Blackboard.LocalPlayer.SortCards());
         }
     }
 }

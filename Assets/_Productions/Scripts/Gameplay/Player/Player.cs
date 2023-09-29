@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
@@ -6,11 +7,12 @@ using UnityEngine;
 
 namespace CapsaBanting
 {
-    public class Player : MonoBehaviour
+    public class Player : MonoBehaviour, IEventListener<GameEvent>
     {
         public IntReactiveProperty money = new();
         public CardHand hand = new();
         public ReactiveCollection<int> selected = new();
+        public BoolReactiveProperty canDealtAny = new();
 
         public BoolReactiveProperty hasPair = new();
         public BoolReactiveProperty hasThree = new();
@@ -30,14 +32,26 @@ namespace CapsaBanting
         private List<List<int>> straightFlush = new ();
         private List<List<int>> royalFlush = new ();
 
+        private int iPlayer;
         private int iSelect = -1;
         private int iCategory = 0;
         private GameController controller;
-        
-        public void Initialize(GameController controller, int money)
+
+        private void OnEnable()
+        {
+            EventManager.AddListener(this);
+        }
+
+        private void OnDisable()
+        {
+            EventManager.RemoveListener(this);
+        }
+
+        public void Initialize(GameController controller, int money, int index)
         {
             this.controller = controller;
             this.money.Value = money;
+            iPlayer = index;
             
             hand.cards.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(_ => CheckHand());
             CheckHand();
@@ -240,7 +254,7 @@ namespace CapsaBanting
                 RemoveCard(card);
             }
 
-            Blackboard.Controller.DealCards(this, dealtHand);
+            Blackboard.Game.DealCards(iPlayer, dealtHand);
         }
 
         public CardHand GetSelectedCardHand()
@@ -253,6 +267,55 @@ namespace CapsaBanting
             }
 
             return cardHand;
+        }
+
+        public void OnEvent(GameEvent e)
+        {
+            if (e.eventName == Constants.EVENT_CARDS_DEALT)
+            {
+                CheckCards();
+            }
+        }
+
+        private void CheckCards()
+        {
+            canDealtAny.Value = false;
+            switch (controller.GameState.lastPlayerHand.CombinationType)
+            {
+                case CardCombinationType.Invalid:
+                    canDealtAny.Value = true;
+                    break;
+                case CardCombinationType.Single:
+                    canDealtAny.Value = true;
+                    break;
+                case CardCombinationType.Pair:
+                    if (hasPair.Value) canDealtAny.Value = true;
+                    break;
+                case CardCombinationType.Triple:
+                    if (hasThree.Value) canDealtAny.Value = true;
+                    break;
+                case CardCombinationType.Flush:
+                    if (hasFlush.Value) canDealtAny.Value = true;
+                    break;
+                case CardCombinationType.Straight:
+                    if (hasStraight.Value) canDealtAny.Value = true;
+                    break;
+                case CardCombinationType.FullHouse:
+                    if (hasFullHouse.Value) canDealtAny.Value = true;
+                    break;
+                case CardCombinationType.FourOfAKind:
+                    if (hasFours.Value) canDealtAny.Value = true;
+                    break;
+                case CardCombinationType.StraightFlush:
+                    if (hasStraightFlush.Value) canDealtAny.Value = true;
+                    break;
+                case CardCombinationType.RoyalFlush:
+                    if (hasRoyalFlush.Value) canDealtAny.Value = true;
+                    break;
+                default:
+                    canDealtAny.Value = true;
+                    break;
+            }
         }
     }
 }

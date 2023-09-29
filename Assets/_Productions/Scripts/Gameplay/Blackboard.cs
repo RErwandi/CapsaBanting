@@ -1,4 +1,5 @@
 using System;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace CapsaBanting
@@ -7,8 +8,13 @@ namespace CapsaBanting
     {
         protected override bool IsPersistBetweenScenes => false;
         
-        [SerializeField] private GameController gameController;
-        public static GameController Controller => Instance.gameController;
+        [SerializeField, Required] private GameController gameController;
+        public static GameController Game => Instance.gameController;
+
+        [SerializeField, Required] private AIController aiController;
+        public static AIController AI => Instance.aiController;
+        
+        [ShowInInspector, ReadOnly] public static Player LocalPlayer { get; set; }
 
         private void Start()
         {
