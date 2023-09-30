@@ -111,9 +111,8 @@ namespace CapsaBanting
         {
             if (iTurn == gameState.lastPlayerTurn)
             {
-                Debug.Log($"Clear table");
                 gameState.Clear();
-                GameEvent.Trigger(Constants.EVENT_CARDS_DEALT);
+                GameEvent.Trigger(Constants.EVENT_TABLE_CLEAR);
             }
         }
 

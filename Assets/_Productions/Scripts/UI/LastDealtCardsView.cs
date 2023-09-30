@@ -31,7 +31,6 @@ namespace CapsaBanting
 
         private void OnCardsChanged()
         {
-            ResetCards();
             SetUpCards();
         }
 
@@ -49,15 +48,7 @@ namespace CapsaBanting
             var originPos = spawners[Blackboard.Game.GameState.lastPlayerTurn].position;
             container.DOMove(originPos, 0f);
             container.DOMove(cardsContainer.position, 1f).SetEase(Ease.Linear);
-        }
-
-        private void ResetCards()
-        {
-            // foreach (var view in views)
-            // {
-            //     Pool.Despawn(view);
-            // }
-            // views.Clear();
+            container.DOLocalRotate(new Vector3(0f, 0f, Random.Range(-45f, 45f)), 0f);
         }
 
         private void ResetTable()
@@ -67,6 +58,7 @@ namespace CapsaBanting
                 Pool.Despawn(view);
             }
             views.Clear();
+            cardsContainer.gameObject.DestroyChildren();
         }
 
         public void OnEvent(GameEvent e)
