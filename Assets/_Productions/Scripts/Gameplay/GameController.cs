@@ -112,7 +112,8 @@ namespace CapsaBanting
             if (iTurn == gameState.lastPlayerTurn)
             {
                 Debug.Log($"Clear table");
-                gameState.lastPlayerHand.Clear();
+                gameState.Clear();
+                GameEvent.Trigger(Constants.EVENT_CARDS_DEALT);
             }
         }
 
@@ -122,7 +123,7 @@ namespace CapsaBanting
             msg = hand.cards.Aggregate(msg, (current, card) => current + $"{card.face}_{card.suit}");
 
             Debug.Log(msg);
-            gameState.lastPlayerHand = hand;
+            gameState.lastPlayerHands.Add(hand);
             gameState.lastPlayerTurn = playerIndex;
             
             GameEvent.Trigger(Constants.EVENT_CARDS_DEALT);

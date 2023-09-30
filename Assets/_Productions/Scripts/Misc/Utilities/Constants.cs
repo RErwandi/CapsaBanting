@@ -8,6 +8,7 @@ namespace CapsaBanting
     {
         public const string EVENT_GAME_INITIALIZED = "Game Initialized";
         public const string EVENT_CARDS_DEALT = "Cards Dealt";
+        public const string EVENT_TABLE_CLEAR = "Clear Table";
     }
 
 }

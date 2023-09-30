@@ -273,7 +273,7 @@ namespace CapsaBanting
 
         public void OnEvent(GameEvent e)
         {
-            if (e.eventName == Constants.EVENT_CARDS_DEALT)
+            if (e.eventName == Constants.EVENT_CARDS_DEALT || e.eventName == Constants.EVENT_TABLE_CLEAR)
             {
                 CheckCards();
             }
@@ -282,7 +282,7 @@ namespace CapsaBanting
         private void CheckCards()
         {
             canDealtAny.Value = false;
-            switch (controller.GameState.lastPlayerHand.CombinationType)
+            switch (controller.GameState.LastPlayerHand.CombinationType)
             {
                 case CardCombinationType.Invalid:
                     canDealtAny.Value = true;
@@ -322,7 +322,7 @@ namespace CapsaBanting
 
         public void DealBest()
         {
-            var tableHand = controller.GameState.lastPlayerHand;
+            var tableHand = controller.GameState.LastPlayerHand;
             if (!canDealtAny.Value)
             {
                 Blackboard.Game.Pass(iPlayer);
@@ -366,7 +366,7 @@ namespace CapsaBanting
                 for (var i = 0; i < hand.cards.Count; i++)
                 {
                     SelectCard(i);
-                    if (selectedHand.HighCard > controller.GameState.lastPlayerHand.HighCard)
+                    if (selectedHand.HighCard > controller.GameState.LastPlayerHand.HighCard)
                     {
                         DealSelected();
                         return;
@@ -382,7 +382,7 @@ namespace CapsaBanting
             foreach (var attempt in attemptCards)
             {
                 SelectCards(attempt);
-                if (selectedHand.HighCard > controller.GameState.lastPlayerHand.HighCard)
+                if (selectedHand.HighCard > controller.GameState.LastPlayerHand.HighCard)
                 {
                     DealSelected();
                     return;

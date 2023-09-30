@@ -10,7 +10,6 @@ namespace CapsaBanting
         [SerializeField] private Transform cardsContainer;
         
         private List<CardView> views = new();
-        private CardHand Hand => Blackboard.Game.GameState.lastPlayerHand;
 
         private void OnEnable()
         {
@@ -24,7 +23,7 @@ namespace CapsaBanting
 
         private void Subscribe()
         {
-            Hand.cards.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(_ => OnCardsChanged());
+            Blackboard.Game.GameState.lastPlayerHands.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(_ => OnCardsChanged());
         }
 
         private void OnCardsChanged()
@@ -36,9 +35,9 @@ namespace CapsaBanting
 
         private void SetUpCards()
         {
-            for (var i = 0; i < Hand.cards.Count; i++)
+            for (var i = 0; i < Blackboard.Game.GameState.LastPlayerHand.cards.Count; i++)
             {
-                var card = Hand.cards[i];
+                var card = Blackboard.Game.GameState.LastPlayerHand.cards[i];
                 var view = Pool.Spawn(cardView, cardsContainer);
                 view.SetCard(card, i);
                 views.Add(view);
