@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4efe5501a0d6405429a378f90d938120, type: 3}
+  m_Name: Player 4
+  m_EditorClassIdentifier: 
+  playerName: NotRealJapanese
+  playerIcon:
+  - {fileID: -1486499908, guid: a49af7f41176174468007fad5e3cdd72, type: 3}
+  - {fileID: 1252206774, guid: a49af7f41176174468007fad5e3cdd72, type: 3}
+  - {fileID: 1357685959, guid: a49af7f41176174468007fad5e3cdd72, type: 3}
+  voiceDeal: {fileID: 11400000, guid: 0543cdf031637b0498e4be1cb2f30fb7, type: 2}
+  voicePass: {fileID: 11400000, guid: 4eab7336db922fa429e2b5c9dc8b181a, type: 2}
+  voiceLose: {fileID: 11400000, guid: d731c7acb30e83b43a2f38693d434924, type: 2}
+  voiceWin: {fileID: 11400000, guid: f826cb5730e22ee4a929d514509d4fe1, type: 2}

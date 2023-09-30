@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16703da884c777e4fb4a4b9a5a7fd241, type: 3}
+  m_Name: P4_Pass
+  m_EditorClassIdentifier: 
+  id:
+    uniqueId: 51e58764-6ca0-4442-b0fa-d604a7454ea7
+  sound: {fileID: 8300000, guid: 1af9caa9bf1832042a8b3126ea02068d, type: 3}
+  useRandomSounds: 1
+  randomSounds:
+  - {fileID: 8300000, guid: 474114ebcb4ed2f429fefcc52911736d, type: 3}
+  - {fileID: 8300000, guid: e89ea40873e225441a6304c459d1c749, type: 3}
+  volume: {x: 1, y: 1}
+  pitch: {x: 0.8, y: 0.9}
+  audioTrack: 1
+  loop: 0
+  persistent: 0
+  doNotPlayIfClipAlreadyPlaying: 0
+  doNotAutoRecycleIfNotDonePlaying: 0
+  fade: 0
+  fadeInitialVolume: 0
+  fadeDuration: 1
+  fadeEase: 13
+  soloSingleTrack: 0
+  soloAllTracks: 0
+  autoUnSoloOnEnd: 0
+  panStereo: 0
+  spatialBlend: 0
+  bypassEffects: 0
+  bypassListenerEffects: 0
+  bypassReverbZones: 0
+  priority: 128
+  reverbZoneMix: 1
+  dopplerLevel: 1
+  spread: 0
+  rolloffMode: 0
+  minDistance: 1
+  maxDistance: 500
+  previewProgress: 0

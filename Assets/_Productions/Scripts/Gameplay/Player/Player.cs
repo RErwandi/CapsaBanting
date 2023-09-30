@@ -7,7 +7,6 @@ namespace CapsaBanting
 {
     public class Player : MonoBehaviour, IEventListener<GameEvent>
     {
-        public StringReactiveProperty playerName = new();
         public IntReactiveProperty money = new();
         public CardHand hand = new();
         public ReactiveCollection<int> selected = new();
@@ -37,6 +36,8 @@ namespace CapsaBanting
         private int iCategory = 0;
         private GameController controller;
 
+        public PlayerProfile Profile;
+
         private void OnEnable()
         {
             EventManager.AddListener(this);
@@ -47,10 +48,11 @@ namespace CapsaBanting
             EventManager.RemoveListener(this);
         }
 
-        public void Initialize(GameController controller, int money, int index)
+        public void Initialize(GameController controller, int money, int index, PlayerProfile profile)
         {
             this.controller = controller;
             this.money.Value = money;
+            this.Profile = profile;
             iPlayer = index;
             
             hand.cards.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(_ => CheckHand());
@@ -237,6 +239,7 @@ namespace CapsaBanting
         
         public void DealSelected()
         {
+            AudioManager.Instance.PlaySound(Profile.VoiceDeal);
             DealCards(selected.ToList());
             selected.Clear();
         }
@@ -322,10 +325,11 @@ namespace CapsaBanting
 
         public void DealBest()
         {
+            ResetSelected();
             var tableHand = controller.GameState.LastPlayerHand;
             if (!canDealtAny.Value)
             {
-                Blackboard.Game.Pass(iPlayer);
+                Pass();
                 return;
             }
 
@@ -373,7 +377,7 @@ namespace CapsaBanting
                     }
                 }
 
-                Blackboard.Game.Pass(iPlayer);
+                Pass();
             }
         }
 
@@ -389,6 +393,12 @@ namespace CapsaBanting
                 }
             }
             
+            Pass();
+        }
+
+        private void Pass()
+        {
+            AudioManager.Instance.PlaySound(Profile.VoicePass);
             Blackboard.Game.Pass(iPlayer);
         }
     }

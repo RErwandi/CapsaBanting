@@ -125,7 +125,7 @@ namespace CapsaBanting
 		    previewAudioSound = previewAudioGo.AddComponent<AudioManagerSound>();
 		    previewAudioSound.audioSource = previewAudioSound.gameObject.AddComponent<AudioSource>();
             
-		    var clipSound = sound;
+		    var clipSound = Sound;
 		    previewAudioSound.audioSource.clip = clipSound;
 		    previewAudioSound.audioSource.pitch = Pitch;
 		    previewAudioSound.audioSource.volume = Volume;

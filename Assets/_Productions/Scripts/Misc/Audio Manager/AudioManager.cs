@@ -82,7 +82,7 @@ namespace CapsaBanting
                 sounds.Add(audioSound);
             }
             
-            var clipSound = clip.sound;
+            var clipSound = clip.Sound;
             audioSound.persistent = clip.persistent;
             audioSound.track = clip.audioTrack;
             audioSound.audioSource.transform.position = location;

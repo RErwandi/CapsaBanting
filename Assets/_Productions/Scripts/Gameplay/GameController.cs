@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
@@ -13,6 +14,7 @@ namespace CapsaBanting
         private int initialMoney = 1000000;
         [SerializeField, LabelText("Bet", SdfIconType.CurrencyDollar), SuffixLabel("USD", overlay:true), BoxGroup("Game Settings")] 
         private int bet = 200000;
+        [SerializeField, BoxGroup("Game Settings")] private List<PlayerProfile> profiles;
         
         [BoxGroup("Required")]
         [SerializeField, Required] private Player playerPrefab;
@@ -44,18 +46,16 @@ namespace CapsaBanting
             {
                 var player = Instantiate(playerPrefab, transform);
                 player.gameObject.name = $"Player {i + 1}";
-                player.Initialize(this, initialMoney, i);
+                player.Initialize(this, initialMoney, i, profiles[i]);
                 players.Add(player);
 
                 if (i == 0)
                 {
                     Blackboard.LocalPlayer = player;
-                    player.playerName.Value = "You";
                 }
                 else
                 {
                     Blackboard.AI.AIPlayers.Add(player);
-                    player.playerName.Value = $"Computer {i}";
                 }
             }
         }
@@ -119,20 +119,32 @@ namespace CapsaBanting
 
         public void DealCards(int playerIndex, CardHand hand)
         {
+            StartCoroutine(DealCardsCoroutine(playerIndex, hand));
+        }
+
+        private IEnumerator DealCardsCoroutine(int playerIndex, CardHand hand)
+        {
             var msg = $"Player {playerIndex + 1} deal ";
             msg = hand.cards.Aggregate(msg, (current, card) => current + $"{card.face}_{card.suit}");
 
             Debug.Log(msg);
-            gameState.lastPlayerHands.Add(hand);
             gameState.lastPlayerTurn = playerIndex;
-            
+            gameState.lastPlayerHands.Add(hand);
+
             GameEvent.Trigger(Constants.EVENT_CARDS_DEALT);
+            yield return new WaitForSeconds(1f);
             NextTurn();
         }
 
         public void Pass(int playerIndex)
         {
+            StartCoroutine(PassCoroutine(playerIndex));
+        }
+
+        private IEnumerator PassCoroutine(int playerIndex)
+        {
             Debug.Log($"Player {playerIndex + 1} passed.");
+            yield return new WaitForSeconds(1f);
             NextTurn();
         }
     }

@@ -26,6 +26,8 @@ namespace CapsaBanting
         private void Subscribe()
         {
             LocalPlayer.money.TakeUntilDestroy(this).Subscribe(OnMoneyChanged);
+            nameText.text = LocalPlayer.Profile.PlayerName;
+            profileImage.sprite = LocalPlayer.Profile.NormalFace;
         }
 
         private void OnMoneyChanged(int value)
