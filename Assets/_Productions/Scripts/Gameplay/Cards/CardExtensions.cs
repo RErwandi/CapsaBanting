@@ -6,5 +6,10 @@ namespace CapsaBanting
         {
             return (int)card.face;
         }
+        
+        public static int GetSuitValue(this Card card)
+        {
+            return (int)card.suit;
+        }
     }
 }

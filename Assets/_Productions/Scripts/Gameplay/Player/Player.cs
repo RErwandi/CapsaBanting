@@ -300,32 +300,57 @@ namespace CapsaBanting
                     canDealtAny.Value = true;
                     break;
                 case CardCombinationType.Pair:
-                    if (hasPair.Value) canDealtAny.Value = true;
+                    if (hasPair.Value) CheckHigher(pairs);
                     break;
                 case CardCombinationType.Triple:
-                    if (hasThree.Value) canDealtAny.Value = true;
+                    if (hasThree.Value) CheckHigher(threes);
                     break;
                 case CardCombinationType.Flush:
-                    if (hasFlush.Value) canDealtAny.Value = true;
+                    if (hasFlush.Value) CheckHigher(flush);
                     break;
                 case CardCombinationType.Straight:
-                    if (hasStraight.Value) canDealtAny.Value = true;
+                    if (hasStraight.Value) CheckHigher(straight);
                     break;
                 case CardCombinationType.FullHouse:
-                    if (hasFullHouse.Value) canDealtAny.Value = true;
+                    if (hasFullHouse.Value) CheckHigher(fullHouse);
                     break;
                 case CardCombinationType.FourOfAKind:
-                    if (hasFours.Value) canDealtAny.Value = true;
+                    if (hasFours.Value) CheckHigher(fours);
                     break;
                 case CardCombinationType.StraightFlush:
-                    if (hasStraightFlush.Value) canDealtAny.Value = true;
+                    if (hasStraightFlush.Value) CheckHigher(straightFlush);
                     break;
                 case CardCombinationType.RoyalFlush:
-                    if (hasRoyalFlush.Value) canDealtAny.Value = true;
+                    if (hasRoyalFlush.Value) CheckHigher(royalFlush);
                     break;
                 default:
                     canDealtAny.Value = true;
                     break;
+            }
+        }
+
+        private void CheckHigher(List<List<int>> sets)
+        {
+            foreach (var set in sets)
+            {
+                var setHand = new CardHand();
+                foreach (var i in set)
+                {
+                    var card = hand.cards[i];
+                    setHand.AddCard(card);
+                }
+                
+                if (setHand.HighCard > controller.GameState.LastPlayerHand.HighCard)
+                {
+                    canDealtAny.Value = true;
+                }
+                else if (setHand.HighCard == controller.GameState.LastPlayerHand.HighCard)
+                {
+                    if (setHand.BestSuit > controller.GameState.LastPlayerHand.BestSuit)
+                    {
+                        canDealtAny.Value = true;
+                    }
+                }
             }
         }
 
@@ -382,6 +407,15 @@ namespace CapsaBanting
                         DealSelected();
                         return;
                     }
+                    
+                    if (selectedHand.HighCard == controller.GameState.LastPlayerHand.HighCard)
+                    {
+                        if (selectedHand.BestSuit > controller.GameState.LastPlayerHand.BestSuit)
+                        {
+                            DealSelected();
+                            return;
+                        }
+                    }
                 }
 
                 Pass();
@@ -397,6 +431,15 @@ namespace CapsaBanting
                 {
                     DealSelected();
                     return;
+                }
+                
+                if (selectedHand.HighCard == controller.GameState.LastPlayerHand.HighCard)
+                {
+                    if (selectedHand.BestSuit > controller.GameState.LastPlayerHand.BestSuit)
+                    {
+                        DealSelected();
+                        return;
+                    }
                 }
             }
             

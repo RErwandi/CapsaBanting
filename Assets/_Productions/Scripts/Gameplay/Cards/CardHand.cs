@@ -61,6 +61,23 @@ namespace CapsaBanting
                 return highCard;
             }
         }
+        
+        public int BestSuit
+        {
+            get
+            {
+                int highCard = 0;
+                foreach (var card in cards)
+                {
+                    if (card.GetSuitValue() > highCard)
+                    {
+                        highCard = card.GetSuitValue();
+                    }
+                }
+
+                return highCard;
+            }
+        }
 
         public bool IsSingle => cards.Count == 1;
         public bool IsPair => HasPair().Count >= 1 && cards.Count == 2;

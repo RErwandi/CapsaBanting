@@ -60,7 +60,8 @@ namespace CapsaBanting
             }
             else
             {
-                submitButton.interactable = hand.CombinationType == table.CombinationType && hand.HighCard > table.HighCard;
+                submitButton.interactable = hand.CombinationType == table.CombinationType && (hand.HighCard > table.HighCard) || 
+                                            (hand.HighCard == table.HighCard && hand.BestSuit > table.BestSuit);
             }
         }
 
