@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
+using TMPro;
 using UniRx;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace CapsaBanting
         [SerializeField] private RectTransform cardsContainer;
         [SerializeField] private RectTransform containerTemplate;
         [SerializeField] private RectTransform[] spawners;
+        [SerializeField] private TextMeshProUGUI combinationText;
         
         private List<CardView> views = new();
 
@@ -32,6 +34,13 @@ namespace CapsaBanting
         private void OnCardsChanged()
         {
             SetUpCards();
+            UpdateCombinationText();
+        }
+
+        private void UpdateCombinationText()
+        {
+            var lastCombination = Blackboard.Game.GameState.LastPlayerHand.CombinationType;
+            combinationText.text = lastCombination == CardCombinationType.Invalid ? "" : $"{lastCombination}";
         }
 
         private void SetUpCards()

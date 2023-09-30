@@ -266,6 +266,9 @@ MonoBehaviour:
   moneyText: {fileID: 7639944120646269904}
   cardsLeftText: {fileID: 7639944121718523007}
   profileImage: {fileID: 7011463129938105299}
+  background: {fileID: 7639944120690624702}
+  defaultColor: {r: 0.098039225, g: 0.42352945, b: 0.69803923, a: 0.5882353}
+  turnColor: {r: 0.69803923, g: 0.17747387, b: 0.098039195, a: 0.5882353}
 --- !u!1 &7639944120690624691
 GameObject:
   m_ObjectHideFlags: 0

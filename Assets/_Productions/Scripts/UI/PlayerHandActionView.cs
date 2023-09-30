@@ -15,13 +15,25 @@ namespace CapsaBanting
         private void OnEnable()
         {
             EventManager.AddListener(this);
-            submitButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => LocalPlayer.DealSelected());
-            passButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => Blackboard.Game.Pass(0));
+            submitButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => SubmitClicked());
+            passButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => PassClicked());
         }
 
         private void OnDisable()
         {
             EventManager.RemoveListener(this);
+        }
+
+        private void Hide()
+        {
+            passButton.gameObject.SetActive(false);
+            submitButton.gameObject.SetActive(false);
+        }
+
+        private void Show()
+        {
+            passButton.gameObject.SetActive(true);
+            submitButton.gameObject.SetActive(true);
         }
 
         private void Subscribe()
@@ -61,15 +73,25 @@ namespace CapsaBanting
         {
             if (state.StateName == "Enemy Turn")
             {
-                passButton.gameObject.SetActive(false);
-                submitButton.gameObject.SetActive(false);
+                Hide();
             }
             
             if (state.StateName == "Player Turn")
             {
-                passButton.gameObject.SetActive(true);
-                submitButton.gameObject.SetActive(true);
+                Show();
             }
+        }
+
+        private void SubmitClicked()
+        {
+            Hide();
+            LocalPlayer.DealSelected();
+        }
+
+        private void PassClicked()
+        {
+            Hide();
+            Blackboard.Game.Pass(0);
         }
         
         public void OnEvent(GameEvent e)

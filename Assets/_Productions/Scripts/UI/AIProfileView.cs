@@ -11,11 +11,18 @@ namespace CapsaBanting
         [SerializeField] private TextMeshProUGUI moneyText;
         [SerializeField] private TextMeshProUGUI cardsLeftText;
         [SerializeField] private Image profileImage;
+        [SerializeField] private Image background;
+        [SerializeField] private Color defaultColor;
+        [SerializeField] private Color turnColor;
+
+        private Player player;
         
         public void Initialize(Player player)
         {
+            this.player = player;
             player.money.TakeUntilDestroy(this).Subscribe(UpdateMoney);
             player.hand.cards.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(UpdateCardsLeft);
+            Blackboard.Game.ITurn.TakeUntilDestroy(this).Subscribe(UpdateBackground);
 
             UpdateCardsLeft(player.hand.cards.Count);
             profileImage.sprite = player.Profile.NormalFace;
@@ -30,6 +37,11 @@ namespace CapsaBanting
         private void UpdateCardsLeft(int count)
         {
             cardsLeftText.text = count.ToString();
+        }
+
+        private void UpdateBackground(int index)
+        {
+            background.color = index == player.Index ? turnColor : defaultColor;
         }
     }
 }

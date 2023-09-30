@@ -37,6 +37,7 @@ namespace CapsaBanting
         private GameController controller;
 
         public PlayerProfile Profile;
+        public int Index => iPlayer;
 
         private void OnEnable()
         {
@@ -280,6 +281,11 @@ namespace CapsaBanting
             {
                 CheckCards();
             }
+
+            if (e.eventName == Constants.EVENT_GAME_ENDED)
+            {
+                EvaluateGame();
+            }
         }
 
         private void CheckCards()
@@ -369,6 +375,7 @@ namespace CapsaBanting
             {
                 for (var i = 0; i < hand.cards.Count; i++)
                 {
+                    ResetSelected();
                     SelectCard(i);
                     if (selectedHand.HighCard > controller.GameState.LastPlayerHand.HighCard)
                     {
@@ -400,6 +407,29 @@ namespace CapsaBanting
         {
             AudioManager.Instance.PlaySound(Profile.VoicePass);
             Blackboard.Game.Pass(iPlayer);
+        }
+
+        private void EvaluateGame()
+        {
+            if (hand.cards.Count == 0)
+            {
+                Win();
+            }
+            else
+            {
+                Lose();
+            }
+        }
+
+        private void Win()
+        {
+            AddMoney(Blackboard.Game.Bet);
+        }
+        
+        private void Lose()
+        {
+            var loseMoney = hand.cards.Count * Blackboard.Game.Bet;
+            SubtractMoney(loseMoney);
         }
     }
 }

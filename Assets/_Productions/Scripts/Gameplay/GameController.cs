@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
+using UniRx;
 using UnityEngine;
 
 namespace CapsaBanting
@@ -25,12 +26,15 @@ namespace CapsaBanting
 
         private List<Player> players = new();
         private Deck deck;
-        private int iTurn;
+        
+        private IntReactiveProperty iTurn = new();
+        public IntReactiveProperty ITurn => iTurn;
         
         [ShowInInspector, ReadOnly] private GameState gameState = new();
         public GameState GameState => gameState;
 
         public StateMachine StateMachine => stateMachine;
+        public int Bet => bet;
 
         public void Initialize()
         {
@@ -79,37 +83,56 @@ namespace CapsaBanting
             }
         }
 
+        private void ResetPlayersCard()
+        {
+            foreach (var player in players)
+            {
+                player.hand.Clear();
+            }
+        }
+
         private void InitiateGame()
         {
-            iTurn = 0;
+            iTurn.Value = 0;
             CheckTurn();
         }
 
         private void CheckTurn()
         {
-            stateMachine.SetState(iTurn == 0 ? "Player Turn" : "Enemy Turn");
+            stateMachine.SetState(iTurn.Value == 0 ? "Player Turn" : "Enemy Turn");
         }
         
         private void NextTurn()
         {
-            iTurn++;
-            if (iTurn >= players.Count)
+            iTurn.Value++;
+            if (iTurn.Value >= players.Count)
             {
-                iTurn = 0;
+                iTurn.Value = 0;
             }
             
             CheckTurn();
             CheckClear();
 
-            if (iTurn > 0)
+            if (iTurn.Value > 0)
             {
-                players[iTurn].DealBest();
+                players[iTurn.Value].DealBest();
             }
+        }
+
+        private bool CheckWin()
+        {
+            if (players[iTurn.Value].hand.IsEmpty)
+            {
+                Debug.Log($"Player {iTurn} won!");
+                return true;
+            }
+
+            return false;
         }
 
         private void CheckClear()
         {
-            if (iTurn == gameState.lastPlayerTurn)
+            if (iTurn.Value == gameState.lastPlayerTurn)
             {
                 gameState.Clear();
                 GameEvent.Trigger(Constants.EVENT_TABLE_CLEAR);
@@ -132,7 +155,16 @@ namespace CapsaBanting
 
             GameEvent.Trigger(Constants.EVENT_CARDS_DEALT);
             yield return new WaitForSeconds(1f);
-            NextTurn();
+
+            if (CheckWin())
+            {
+                GameEvent.Trigger(Constants.EVENT_GAME_ENDED);
+                stateMachine.SetState("Game Ended");
+            }
+            else
+            {
+                NextTurn();
+            }
         }
 
         public void Pass(int playerIndex)
@@ -144,6 +176,17 @@ namespace CapsaBanting
         {
             Debug.Log($"Player {playerIndex + 1} passed.");
             yield return new WaitForSeconds(1f);
+            NextTurn();
+        }
+
+        [Button]
+        private void RestartGame()
+        {
+            InitiateDeck();
+            ResetPlayersCard();
+            GiveCardsToPlayers();
+            CheckClear();
+            iTurn.Value--;
             NextTurn();
         }
     }

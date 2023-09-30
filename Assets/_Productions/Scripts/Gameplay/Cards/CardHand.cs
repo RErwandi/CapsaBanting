@@ -72,6 +72,7 @@ namespace CapsaBanting
         public bool IsStraightFlush => HasStraightFlush().Count >= 1 && cards.Count == 5;
         public bool IsRoyalFlush => HasRoyalFlush().Count >= 1 && cards.Count == 5;
         public bool IsInvalid => CombinationType == CardCombinationType.Invalid;
+        public bool IsEmpty => cards.Count == 0;
 
         public void AddCard(Card card)
         {
