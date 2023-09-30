@@ -180,7 +180,7 @@ namespace CapsaBanting
         }
 
         [Button]
-        private void RestartGame()
+        public void RestartGame()
         {
             InitiateDeck();
             ResetPlayersCard();
