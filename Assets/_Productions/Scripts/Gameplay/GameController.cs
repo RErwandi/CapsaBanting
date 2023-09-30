@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -92,20 +93,45 @@ namespace CapsaBanting
         private void NextTurn()
         {
             iTurn++;
-            if (iTurn > players.Count)
+            if (iTurn >= players.Count)
             {
                 iTurn = 0;
             }
             
             CheckTurn();
+            CheckClear();
+
+            if (iTurn > 0)
+            {
+                players[iTurn].DealBest();
+            }
+        }
+
+        private void CheckClear()
+        {
+            if (iTurn == gameState.lastPlayerTurn)
+            {
+                Debug.Log($"Clear table");
+                gameState.lastPlayerHand.Clear();
+            }
         }
 
         public void DealCards(int playerIndex, CardHand hand)
         {
+            var msg = $"Player {playerIndex + 1} deal ";
+            msg = hand.cards.Aggregate(msg, (current, card) => current + $"{card.face}_{card.suit}");
+
+            Debug.Log(msg);
             gameState.lastPlayerHand = hand;
             gameState.lastPlayerTurn = playerIndex;
             
             GameEvent.Trigger(Constants.EVENT_CARDS_DEALT);
+            NextTurn();
+        }
+
+        public void Pass(int playerIndex)
+        {
+            Debug.Log($"Player {playerIndex + 1} passed.");
             NextTurn();
         }
     }

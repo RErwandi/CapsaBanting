@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Sirenix.OdinInspector;
 using UniRx;
 using UnityEngine;
 
@@ -13,6 +11,7 @@ namespace CapsaBanting
         public IntReactiveProperty money = new();
         public CardHand hand = new();
         public ReactiveCollection<int> selected = new();
+        public CardHand selectedHand = new();
         public BoolReactiveProperty canDealtAny = new();
 
         public BoolReactiveProperty hasPair = new();
@@ -55,7 +54,9 @@ namespace CapsaBanting
             iPlayer = index;
             
             hand.cards.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(_ => CheckHand());
+            selected.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(_ => RefreshSelectedHand());
             CheckHand();
+            CheckCards();
         }
 
         public void AddMoney(int amount)
@@ -105,7 +106,7 @@ namespace CapsaBanting
         
         private void SelectCards(List<int> indexes)
         {
-            selected.Clear();
+            ResetSelected();
             foreach (var index in indexes)
             {
                 selected.Add(index);
@@ -258,16 +259,16 @@ namespace CapsaBanting
             Blackboard.Game.DealCards(iPlayer, dealtHand);
         }
 
-        public CardHand GetSelectedCardHand()
+        public CardHand RefreshSelectedHand()
         {
-            var cardHand = new CardHand();
+            selectedHand.cards.Clear();
             foreach (var i in selected)
             {
                 var card = hand.cards[i];
-                cardHand.AddCard(card);
+                selectedHand.AddCard(card);
             }
 
-            return cardHand;
+            return selectedHand;
         }
 
         public void OnEvent(GameEvent e)
@@ -317,6 +318,78 @@ namespace CapsaBanting
                     canDealtAny.Value = true;
                     break;
             }
+        }
+
+        public void DealBest()
+        {
+            var tableHand = controller.GameState.lastPlayerHand;
+            if (!canDealtAny.Value)
+            {
+                Blackboard.Game.Pass(iPlayer);
+                return;
+            }
+
+            if (hasRoyalFlush.Value && (tableHand.IsRoyalFlush || tableHand.IsInvalid))
+            {
+                Attempt(royalFlush);
+            }
+            else if (hasStraightFlush.Value && (tableHand.IsStraightFlush || tableHand.IsInvalid))
+            {
+                Attempt(straightFlush);
+            }
+            else if (hasFours.Value && (tableHand.IsFourOfAKind || tableHand.IsInvalid))
+            {
+                Attempt(fours);
+            }
+            else if (hasFullHouse.Value && (tableHand.IsFullHouse || tableHand.IsInvalid))
+            {
+                Attempt(fullHouse);
+            }
+            else if (hasStraight.Value && (tableHand.IsStraight || tableHand.IsInvalid))
+            {
+                Attempt(straight);
+            }
+            else if (hasFlush.Value && (tableHand.IsFlush || tableHand.IsInvalid))
+            {
+                Attempt(flush);
+            }
+            else if (hasThree.Value && (tableHand.IsThreeOfKind || tableHand.IsInvalid))
+            {
+                Attempt(threes);
+            }
+            else if (hasPair.Value && (tableHand.IsPair || tableHand.IsInvalid))
+            {
+                Attempt(pairs);
+            }
+            else if (tableHand.IsSingle || tableHand.IsInvalid)
+            {
+                for (var i = 0; i < hand.cards.Count; i++)
+                {
+                    SelectCard(i);
+                    if (selectedHand.HighCard > controller.GameState.lastPlayerHand.HighCard)
+                    {
+                        DealSelected();
+                        return;
+                    }
+                }
+
+                Blackboard.Game.Pass(iPlayer);
+            }
+        }
+
+        private void Attempt(List<List<int>> attemptCards)
+        {
+            foreach (var attempt in attemptCards)
+            {
+                SelectCards(attempt);
+                if (selectedHand.HighCard > controller.GameState.lastPlayerHand.HighCard)
+                {
+                    DealSelected();
+                    return;
+                }
+            }
+            
+            Blackboard.Game.Pass(iPlayer);
         }
     }
 }

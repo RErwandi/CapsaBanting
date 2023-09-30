@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UniRx;
 
 namespace CapsaBanting
@@ -8,6 +9,7 @@ namespace CapsaBanting
     public class CardHand
     {
         public ReactiveCollection<Card> cards = new();
+        [ShowInInspector]
         public CardCombinationType CombinationType
         {
             get
@@ -61,18 +63,24 @@ namespace CapsaBanting
         }
 
         public bool IsSingle => cards.Count == 1;
-        public bool IsPair => HasPair().Count >= 1;
-        public bool IsThreeOfKind => HasThreeOfAKind().Count >= 1;
-        public bool IsStraight => HasStraight().Count >= 1;
-        public bool IsFlush => HasFlush().Count >= 1;
-        public bool IsFullHouse => HasFullHouse().Count >= 1;
-        public bool IsFourOfAKind => HasFourOfAKind().Count >= 1;
-        public bool IsStraightFlush => HasStraightFlush().Count >= 1;
-        public bool IsRoyalFlush => HasRoyalFlush().Count >= 1;
+        public bool IsPair => HasPair().Count >= 1 && cards.Count == 2;
+        public bool IsThreeOfKind => HasThreeOfAKind().Count >= 1 && cards.Count == 3;
+        public bool IsStraight => HasStraight().Count >= 1 && cards.Count == 5;
+        public bool IsFlush => HasFlush().Count >= 1 && cards.Count == 5;
+        public bool IsFullHouse => HasFullHouse().Count >= 1 && cards.Count == 5;
+        public bool IsFourOfAKind => HasFourOfAKind().Count >= 1 && cards.Count == 5;
+        public bool IsStraightFlush => HasStraightFlush().Count >= 1 && cards.Count == 5;
+        public bool IsRoyalFlush => HasRoyalFlush().Count >= 1 && cards.Count == 5;
+        public bool IsInvalid => CombinationType == CardCombinationType.Invalid;
 
         public void AddCard(Card card)
         {
             cards.Add(card);
+        }
+
+        public void Clear()
+        {
+            cards.Clear();
         }
         
         public void RemoveCard(Card card)

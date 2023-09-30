@@ -16,6 +16,7 @@ namespace CapsaBanting
         {
             EventManager.AddListener(this);
             submitButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => LocalPlayer.DealSelected());
+            passButton.OnClickAsObservable().TakeUntilDisable(this).Subscribe(_ => Blackboard.Game.Pass(0));
         }
 
         private void OnDisable()
@@ -27,14 +28,21 @@ namespace CapsaBanting
         {
             LocalPlayer.selected.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(_ => OnSelectedChanged());
             LocalPlayer.canDealtAny.TakeUntilDestroy(this).Subscribe(OnCanDealtChanged);
+            Blackboard.Game.StateMachine.currentState.TakeUntilDestroy(this).Subscribe(OnStateChanged);
+            
+            OnSelectedChanged();
         }
 
         private void OnSelectedChanged()
         {
-            var hand = LocalPlayer.GetSelectedCardHand();
+            var hand = LocalPlayer.selectedHand;
             var table = Blackboard.Game.GameState.lastPlayerHand;
 
-            if (table.CombinationType == CardCombinationType.Invalid)
+            if (hand.CombinationType == CardCombinationType.Invalid)
+            {
+                submitButton.interactable = false;
+            }
+            else if (table.CombinationType == CardCombinationType.Invalid && hand.CombinationType != CardCombinationType.Invalid)
             {
                 submitButton.interactable = true;
             }
@@ -47,6 +55,21 @@ namespace CapsaBanting
         private void OnCanDealtChanged(bool value)
         {
             passIndicator.SetActive(!value);
+        }
+
+        private void OnStateChanged(State state)
+        {
+            if (state.StateName == "Enemy Turn")
+            {
+                passButton.gameObject.SetActive(false);
+                submitButton.gameObject.SetActive(false);
+            }
+            
+            if (state.StateName == "Player Turn")
+            {
+                passButton.gameObject.SetActive(true);
+                submitButton.gameObject.SetActive(true);
+            }
         }
         
         public void OnEvent(GameEvent e)

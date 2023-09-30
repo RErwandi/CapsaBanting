@@ -22,8 +22,14 @@ namespace CapsaBanting
             EventManager.RemoveListener(this);
         }
 
+        private void Subscribe()
+        {
+            Hand.cards.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(_ => OnCardsChanged());
+        }
+
         private void OnCardsChanged()
         {
+            Debug.Log($"Cards changed");
             ResetCards();
             SetUpCards();
         }
@@ -50,9 +56,9 @@ namespace CapsaBanting
 
         public void OnEvent(GameEvent e)
         {
-            if (e.eventName == Constants.EVENT_CARDS_DEALT)
+            if (e.eventName == Constants.EVENT_GAME_INITIALIZED)
             {
-                OnCardsChanged();
+                Subscribe();
             }
         }
     }
