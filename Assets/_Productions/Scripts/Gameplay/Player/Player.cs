@@ -291,7 +291,7 @@ namespace CapsaBanting
                     canDealtAny.Value = true;
                     break;
                 case CardCombinationType.Single:
-                    canDealtAny.Value = true;
+                    CheckHigher(single);
                     break;
                 case CardCombinationType.Pair:
                     if (hasPair.Value) CheckHigher(pairs);
