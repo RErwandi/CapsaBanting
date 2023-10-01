@@ -34,6 +34,7 @@ namespace CapsaBanting
         [ShowInInspector, ReadOnly] private GameState gameState = new();
         public GameState GameState => gameState;
 
+        public List<PlayerProfile> Profiles => profiles;
         public int NumberOfPlayers => numberOfPlayer;
         public StateMachine StateMachine => stateMachine;
         public int Bet => bet;

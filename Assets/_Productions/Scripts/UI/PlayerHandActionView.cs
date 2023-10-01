@@ -92,7 +92,7 @@ namespace CapsaBanting
         private void PassClicked()
         {
             Hide();
-            Blackboard.Game.Pass(0);
+            LocalPlayer.Pass();
         }
         
         public void OnEvent(GameEvent e)

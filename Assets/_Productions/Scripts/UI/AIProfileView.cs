@@ -32,7 +32,7 @@ namespace CapsaBanting
 
         private void UpdateMoney(int money)
         {
-            moneyText.text = $"{money:n0}";
+            moneyText.text = $"${money:n0}";
         }
 
         private void UpdateCardsLeft(int count)

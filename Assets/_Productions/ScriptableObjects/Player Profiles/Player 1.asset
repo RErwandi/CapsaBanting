@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4efe5501a0d6405429a378f90d938120, type: 3}
   m_Name: Player 1
   m_EditorClassIdentifier: 
-  playerName: You
+  playerName: Wanna_be_Hero
   playerIcon:
   - {fileID: -1084509435, guid: 9d573602697e648418f05be1b25da55e, type: 3}
   - {fileID: -459699311, guid: 9d573602697e648418f05be1b25da55e, type: 3}
   - {fileID: 1376191015, guid: 9d573602697e648418f05be1b25da55e, type: 3}
-  voiceDeal: {fileID: 0}
-  voicePass: {fileID: 0}
-  voiceLose: {fileID: 0}
-  voiceWin: {fileID: 0}
+  voiceDeal: {fileID: 11400000, guid: 8ba9d38173d8d7b47b4b3e29526cabb2, type: 2}
+  voicePass: {fileID: 11400000, guid: 9605f9f21ab693b4ebaf6200dcd1c83f, type: 2}
+  voiceLose: {fileID: 11400000, guid: cbbada14c1d88a34996404f8cb8e5826, type: 2}
+  voiceWin: {fileID: 11400000, guid: defd0a0e4653e7d45aae4a659c467e38, type: 2}

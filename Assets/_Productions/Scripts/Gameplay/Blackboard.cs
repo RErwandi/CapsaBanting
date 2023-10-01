@@ -14,7 +14,7 @@ namespace CapsaBanting
         public static Player LocalPlayer { get; set; }
         public static List<Player> AIPlayers { get; set; } = new();
 
-        private void Start()
+        public void StartGame()
         {
             gameController.Initialize();
 

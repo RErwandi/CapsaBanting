@@ -411,7 +411,7 @@ namespace CapsaBanting
             Pass();
         }
 
-        private void Pass()
+        public void Pass()
         {
             stateMachine.SetState(Constants.STATE_PLAYER_PASSING);
             Blackboard.Game.Pass(iPlayer);
