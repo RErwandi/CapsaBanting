@@ -48,6 +48,18 @@ namespace CapsaBanting
             InitiateGame();
         }
         
+        public void RestartGame()
+        {
+            InitiateDeck();
+            ResetPlayersCard();
+            GiveCardsToPlayers();
+            SortAICards();
+            CheckClear();
+            iTurn.Value--;
+            initialMoney = 0;
+            NextTurn();
+        }
+        
         private void InitiateDeck()
         {
             deck = ScriptableObject.CreateInstance<Deck>();
@@ -212,8 +224,7 @@ namespace CapsaBanting
 
         private void AddWinner(Player winner)
         {
-            var winMoney = bet + allMoney;
-            winner.AddMoney(winMoney);
+            winner.AddMoney(allMoney);
         }
 
         public void Pass(int playerIndex)
@@ -225,17 +236,6 @@ namespace CapsaBanting
         {
             Debug.Log($"Player {playerIndex + 1} passed.");
             yield return new WaitForSeconds(1f);
-            NextTurn();
-        }
-        
-        public void RestartGame()
-        {
-            InitiateDeck();
-            ResetPlayersCard();
-            GiveCardsToPlayers();
-            CheckClear();
-            iTurn.Value--;
-            initialMoney = 0;
             NextTurn();
         }
     }

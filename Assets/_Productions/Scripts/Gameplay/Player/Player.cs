@@ -267,7 +267,7 @@ namespace CapsaBanting
             }
 
             stateMachine.SetState(Constants.STATE_PLAYER_DEALING);
-            Blackboard.Game.DealCards(iPlayer, dealtHand);
+            controller.DealCards(iPlayer, dealtHand);
         }
 
         private CardHand ConvertIndexToCardHand(List<int> indexes)
@@ -325,27 +325,17 @@ namespace CapsaBanting
 
         private void CheckHigher(List<List<int>> sets)
         {
-            foreach (var set in sets)
+            foreach (var attempt in sets)
             {
-                var setHand = new CardHand();
-                foreach (var i in set)
-                {
-                    var card = hand.cards[i];
-                    setHand.AddCard(card);
-                }
-                
-                if (setHand.HighCard > controller.GameState.LastPlayerHand.HighCard)
+                var attemptHand = ConvertIndexToCardHand(attempt);
+                if (attemptHand.IsHigherThan(controller.GameState.LastPlayerHand))
                 {
                     canDealtAny.Value = true;
-                }
-                else if (setHand.HighCard == controller.GameState.LastPlayerHand.HighCard)
-                {
-                    if (setHand.BestSuit > controller.GameState.LastPlayerHand.BestSuit)
-                    {
-                        canDealtAny.Value = true;
-                    }
+                    return;
                 }
             }
+
+            canDealtAny.Value = false;
         }
 
         public void DealBest()
@@ -414,7 +404,7 @@ namespace CapsaBanting
         public void Pass()
         {
             stateMachine.SetState(Constants.STATE_PLAYER_PASSING);
-            Blackboard.Game.Pass(iPlayer);
+            controller.Pass(iPlayer);
         }
 
         public void Wait()
@@ -424,7 +414,7 @@ namespace CapsaBanting
         
         public void OnEvent(GameEvent e)
         {
-            if (e.eventName == Constants.EVENT_CARDS_DEALT || e.eventName == Constants.EVENT_TABLE_CLEAR)
+            if (e.eventName is Constants.EVENT_CARDS_DEALT or Constants.EVENT_TABLE_CLEAR)
             {
                 CheckCards();
             }
@@ -432,14 +422,9 @@ namespace CapsaBanting
         
         public void OnEvent(PLayerWinEvent e)
         {
-            if (e.indexPlayer == Index)
-            {
-                stateMachine.SetState(Constants.STATE_PLAYER_WINNING);
-            }
-            else
-            {
-                stateMachine.SetState(Constants.STATE_PLAYER_LOSING);
-            }
+            stateMachine.SetState(e.indexPlayer == Index
+                ? Constants.STATE_PLAYER_WINNING
+                : Constants.STATE_PLAYER_LOSING);
         }
 
         #region State Machine Methods

@@ -45,6 +45,8 @@ namespace CapsaBanting
 
         private void SetUpCards()
         {
+            if (Blackboard.Game.GameState.lastPlayerHands.Count == 0) return;
+            
             var container = Instantiate(containerTemplate, cardsContainer);
             for (var i = 0; i < Blackboard.Game.GameState.LastPlayerHand.cards.Count; i++)
             {
