@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace CapsaBanting
 {
-    public class GameEndedView : MonoBehaviour, IEventListener<GameEvent>
+    public class GameEndedView : MonoBehaviour, IEventListener<PLayerWinEvent>
     {
         [SerializeField] private GameObject overlay;
         [SerializeField] private RectTransform panel;
@@ -53,11 +53,27 @@ namespace CapsaBanting
             panel.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
         }
 
-        public void OnEvent(GameEvent e)
+        private void Win()
         {
-            if (e.eventName == Constants.EVENT_GAME_ENDED)
+            Show();
+            titleText.text = $"You Win!";
+        }
+
+        private void Lose()
+        {
+            Show();
+            titleText.text = $"You Lose!";
+        }
+
+        public void OnEvent(PLayerWinEvent e)
+        {
+            if (e.indexPlayer == 0)
             {
-                Show();
+                Win();
+            }
+            else
+            {
+                Lose();
             }
         }
     }

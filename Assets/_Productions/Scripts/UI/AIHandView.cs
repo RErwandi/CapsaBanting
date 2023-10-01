@@ -22,7 +22,7 @@ namespace CapsaBanting
 
         private void Initialize()
         {
-            foreach (var ai in Blackboard.AI.AIPlayers)
+            foreach (var ai in Blackboard.AIPlayers)
             {
                 var view = Instantiate(profileViewTemplate, slots[iSlot]);
                 view.Initialize(ai);

@@ -26,6 +26,7 @@ namespace CapsaBanting
 
         private List<Player> players = new();
         private Deck deck;
+        private int allMoney = 0;
         
         private IntReactiveProperty iTurn = new();
         public IntReactiveProperty ITurn => iTurn;
@@ -41,7 +42,14 @@ namespace CapsaBanting
             InitiateDeck();
             InitiatePlayers();
             GiveCardsToPlayers();
+            SortAICards();
             InitiateGame();
+        }
+        
+        private void InitiateDeck()
+        {
+            deck = ScriptableObject.CreateInstance<Deck>();
+            deck.cards = new List<Card>(deckTemplate.cards);
         }
 
         private void InitiatePlayers()
@@ -59,15 +67,9 @@ namespace CapsaBanting
                 }
                 else
                 {
-                    Blackboard.AI.AIPlayers.Add(player);
+                    Blackboard.AIPlayers.Add(player);
                 }
             }
-        }
-
-        private void InitiateDeck()
-        {
-            deck = ScriptableObject.CreateInstance<Deck>();
-            deck.cards = new List<Card>(deckTemplate.cards);
         }
 
         private void GiveCardsToPlayers()
@@ -80,6 +82,14 @@ namespace CapsaBanting
                     var card = deck.GetRandomCard();
                     player.AddCard(card);
                 }
+            }
+        }
+
+        private void SortAICards()
+        {
+            foreach (var aiPlayer in Blackboard.AIPlayers)
+            {
+                aiPlayer.SortCards();
             }
         }
 
@@ -97,11 +107,6 @@ namespace CapsaBanting
             CheckTurn();
         }
 
-        private void CheckTurn()
-        {
-            stateMachine.SetState(iTurn.Value == 0 ? "Player Turn" : "Enemy Turn");
-        }
-        
         private void NextTurn()
         {
             iTurn.Value++;
@@ -112,6 +117,7 @@ namespace CapsaBanting
             
             CheckTurn();
             CheckClear();
+            ResetPlayerState();
 
             if (iTurn.Value > 0)
             {
@@ -119,11 +125,25 @@ namespace CapsaBanting
             }
         }
 
+        private void ResetPlayerState()
+        {
+            foreach (var player in players)
+            {
+                player.Wait();
+            }
+        }
+        
+        private void CheckTurn()
+        {
+            stateMachine.SetState(iTurn.Value == 0 ? "Player Turn" : "Enemy Turn");
+        }
+
         private bool CheckWin()
         {
             if (players[iTurn.Value].hand.IsEmpty)
             {
                 Debug.Log($"Player {iTurn} won!");
+                PLayerWinEvent.Trigger(iTurn.Value);
                 return true;
             }
 
@@ -147,7 +167,7 @@ namespace CapsaBanting
         private IEnumerator DealCardsCoroutine(int playerIndex, CardHand hand)
         {
             var msg = $"Player {playerIndex + 1} deal ";
-            msg = hand.cards.Aggregate(msg, (current, card) => current + $"{card.face}_{card.suit}");
+            msg = hand.cards.Aggregate(msg, (current, card) => current + $"{card.face}_{card.suit} ");
 
             Debug.Log(msg);
             gameState.lastPlayerTurn = playerIndex;
@@ -158,13 +178,40 @@ namespace CapsaBanting
 
             if (CheckWin())
             {
-                GameEvent.Trigger(Constants.EVENT_GAME_ENDED);
                 stateMachine.SetState("Game Ended");
+                EvaluateBet();
             }
             else
             {
                 NextTurn();
             }
+        }
+
+        private void EvaluateBet()
+        {
+            foreach (var player in players.Where(player => player.Index != iTurn.Value))
+            {
+                SubtractLosers(player);
+            }
+
+            foreach (var player in players.Where(player => player.Index == iTurn.Value))
+            {
+                AddWinner(player);
+            }
+        }
+
+        private void SubtractLosers(Player loser)
+        {
+            var remainingCards = loser.hand.cards.Count;
+            var loseMoney = remainingCards * bet;
+            loser.SubtractMoney(loseMoney);
+            allMoney += loseMoney;
+        }
+
+        private void AddWinner(Player winner)
+        {
+            var winMoney = bet + allMoney;
+            winner.AddMoney(winMoney);
         }
 
         public void Pass(int playerIndex)
@@ -178,8 +225,7 @@ namespace CapsaBanting
             yield return new WaitForSeconds(1f);
             NextTurn();
         }
-
-        [Button]
+        
         public void RestartGame()
         {
             InitiateDeck();
@@ -187,6 +233,7 @@ namespace CapsaBanting
             GiveCardsToPlayers();
             CheckClear();
             iTurn.Value--;
+            initialMoney = 0;
             NextTurn();
         }
     }

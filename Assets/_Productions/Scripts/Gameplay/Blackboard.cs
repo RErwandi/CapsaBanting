@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -11,10 +11,8 @@ namespace CapsaBanting
         [SerializeField, Required] private GameController gameController;
         public static GameController Game => Instance.gameController;
 
-        [SerializeField, Required] private AIController aiController;
-        public static AIController AI => Instance.aiController;
-        
-        [ShowInInspector, ReadOnly] public static Player LocalPlayer { get; set; }
+        public static Player LocalPlayer { get; set; }
+        public static List<Player> AIPlayers { get; set; } = new();
 
         private void Start()
         {

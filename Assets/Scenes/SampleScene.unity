@@ -1559,7 +1559,6 @@ GameObject:
   m_Component:
   - component: {fileID: 486239771}
   - component: {fileID: 486239772}
-  - component: {fileID: 486239773}
   m_Layer: 0
   m_Name: Game
   m_TagString: Untagged
@@ -1606,18 +1605,6 @@ MonoBehaviour:
   playerPrefab: {fileID: 8081401031162038970, guid: 1638ed9884ce3724aa5daf3489e75368, type: 3}
   deckTemplate: {fileID: 11400000, guid: 99187ce449fc64b4bb4ed9fc37bc3176, type: 2}
   stateMachine: {fileID: 421418047}
---- !u!114 &486239773
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 486239770}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96e7726a2d1aaba42af21397f40bd18b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &519083197
 GameObject:
   m_ObjectHideFlags: 0
@@ -5349,7 +5336,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameController: {fileID: 486239772}
-  aiController: {fileID: 486239773}
 --- !u!1 &1578770291
 GameObject:
   m_ObjectHideFlags: 0

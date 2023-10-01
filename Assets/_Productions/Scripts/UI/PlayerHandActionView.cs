@@ -47,7 +47,7 @@ namespace CapsaBanting
 
         private void OnSelectedChanged()
         {
-            var hand = LocalPlayer.selectedHand;
+            var hand = LocalPlayer.SelectedHand;
             var table = Blackboard.Game.GameState.LastPlayerHand;
 
             if (hand.CombinationType == CardCombinationType.Invalid)

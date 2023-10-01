@@ -111,6 +111,20 @@ namespace CapsaBanting
             return cards[index];
         }
 
+        public List<List<int>> HasSingle()
+        {
+            List<List<int>> singleList = new List<List<int>>();
+            for (var i = 0; i < cards.Count; i++)
+            {
+                var single = new List<int>();
+                single.Add(i);
+
+                singleList.Add(single);
+            }
+
+            return singleList;
+        }
+
         public List<List<int>> HasPair()
         {
             List<List<int>> pairList = new List<List<int>>();

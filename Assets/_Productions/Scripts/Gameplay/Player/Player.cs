@@ -5,13 +5,15 @@ using UnityEngine;
 
 namespace CapsaBanting
 {
-    public class Player : MonoBehaviour, IEventListener<GameEvent>
+    public class Player : MonoBehaviour, IEventListener<GameEvent>, IEventListener<PLayerWinEvent>
     {
         public IntReactiveProperty money = new();
         public CardHand hand = new();
         public ReactiveCollection<int> selected = new();
-        public CardHand selectedHand = new();
         public BoolReactiveProperty canDealtAny = new();
+        public ReactiveProperty<Sprite> face = new();
+        public PlayerProfile profile;
+        public StateMachine stateMachine;
 
         public BoolReactiveProperty hasPair = new();
         public BoolReactiveProperty hasThree = new();
@@ -22,6 +24,7 @@ namespace CapsaBanting
         public BoolReactiveProperty hasStraightFlush = new();
         public BoolReactiveProperty hasRoyalFlush = new();
 
+        private List<List<int>> single = new ();
         private List<List<int>> pairs = new ();
         private List<List<int>> threes = new ();
         private List<List<int>> straight = new ();
@@ -36,28 +39,30 @@ namespace CapsaBanting
         private int iCategory = 0;
         private GameController controller;
 
-        public PlayerProfile Profile;
+        public CardHand SelectedHand => ConvertIndexToCardHand(selected.ToList());
         public int Index => iPlayer;
 
         private void OnEnable()
         {
-            EventManager.AddListener(this);
+            EventManager.AddListener<GameEvent>(this);
+            EventManager.AddListener<PLayerWinEvent>(this);
         }
 
         private void OnDisable()
         {
-            EventManager.RemoveListener(this);
+            EventManager.RemoveListener<GameEvent>(this);
+            EventManager.RemoveListener<PLayerWinEvent>(this);
         }
 
         public void Initialize(GameController controller, int money, int index, PlayerProfile profile)
         {
             this.controller = controller;
             this.money.Value = money;
-            this.Profile = profile;
+            this.profile = profile;
             iPlayer = index;
+            face.Value = profile.NormalFace;
             
             hand.cards.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(_ => CheckHand());
-            selected.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(_ => RefreshSelectedHand());
             CheckHand();
             CheckCards();
         }
@@ -119,6 +124,8 @@ namespace CapsaBanting
         private void CheckHand()
         {
             iSelect = -1;
+
+            single = hand.HasSingle();
             
             pairs = hand.HasPair();
             hasPair.Value = pairs.Count > 0;
@@ -240,7 +247,6 @@ namespace CapsaBanting
         
         public void DealSelected()
         {
-            AudioManager.Instance.PlaySound(Profile.VoiceDeal);
             DealCards(selected.ToList());
             selected.Clear();
         }
@@ -260,32 +266,20 @@ namespace CapsaBanting
                 RemoveCard(card);
             }
 
+            stateMachine.SetState(Constants.STATE_PLAYER_DEALING);
             Blackboard.Game.DealCards(iPlayer, dealtHand);
         }
 
-        public CardHand RefreshSelectedHand()
+        private CardHand ConvertIndexToCardHand(List<int> indexes)
         {
-            selectedHand.cards.Clear();
-            foreach (var i in selected)
+            var cardHand = new CardHand();
+            
+            foreach (var card in indexes.Select(i => hand.cards[i]))
             {
-                var card = hand.cards[i];
-                selectedHand.AddCard(card);
+                cardHand.AddCard(card);
             }
 
-            return selectedHand;
-        }
-
-        public void OnEvent(GameEvent e)
-        {
-            if (e.eventName == Constants.EVENT_CARDS_DEALT || e.eventName == Constants.EVENT_TABLE_CLEAR)
-            {
-                CheckCards();
-            }
-
-            if (e.eventName == Constants.EVENT_GAME_ENDED)
-            {
-                EvaluateGame();
-            }
+            return cardHand;
         }
 
         private void CheckCards()
@@ -366,80 +360,51 @@ namespace CapsaBanting
 
             if (hasRoyalFlush.Value && (tableHand.IsRoyalFlush || tableHand.IsInvalid))
             {
-                Attempt(royalFlush);
+                TryDealCards(royalFlush);
             }
             else if (hasStraightFlush.Value && (tableHand.IsStraightFlush || tableHand.IsInvalid))
             {
-                Attempt(straightFlush);
+                TryDealCards(straightFlush);
             }
             else if (hasFours.Value && (tableHand.IsFourOfAKind || tableHand.IsInvalid))
             {
-                Attempt(fours);
+                TryDealCards(fours);
             }
             else if (hasFullHouse.Value && (tableHand.IsFullHouse || tableHand.IsInvalid))
             {
-                Attempt(fullHouse);
+                TryDealCards(fullHouse);
             }
             else if (hasStraight.Value && (tableHand.IsStraight || tableHand.IsInvalid))
             {
-                Attempt(straight);
+                TryDealCards(straight);
             }
             else if (hasFlush.Value && (tableHand.IsFlush || tableHand.IsInvalid))
             {
-                Attempt(flush);
+                TryDealCards(flush);
             }
             else if (hasThree.Value && (tableHand.IsThreeOfKind || tableHand.IsInvalid))
             {
-                Attempt(threes);
+                TryDealCards(threes);
             }
             else if (hasPair.Value && (tableHand.IsPair || tableHand.IsInvalid))
             {
-                Attempt(pairs);
+                TryDealCards(pairs);
             }
             else if (tableHand.IsSingle || tableHand.IsInvalid)
             {
-                for (var i = 0; i < hand.cards.Count; i++)
-                {
-                    ResetSelected();
-                    SelectCard(i);
-                    if (selectedHand.HighCard > controller.GameState.LastPlayerHand.HighCard)
-                    {
-                        DealSelected();
-                        return;
-                    }
-                    
-                    if (selectedHand.HighCard == controller.GameState.LastPlayerHand.HighCard)
-                    {
-                        if (selectedHand.BestSuit > controller.GameState.LastPlayerHand.BestSuit)
-                        {
-                            DealSelected();
-                            return;
-                        }
-                    }
-                }
-
-                Pass();
+                TryDealCards(single);
             }
         }
 
-        private void Attempt(List<List<int>> attemptCards)
+        private void TryDealCards(List<List<int>> attemptCards)
         {
             foreach (var attempt in attemptCards)
             {
-                SelectCards(attempt);
-                if (selectedHand.HighCard > controller.GameState.LastPlayerHand.HighCard)
+                var attemptHand = ConvertIndexToCardHand(attempt);
+                if (attemptHand.IsHigherThan(controller.GameState.LastPlayerHand))
                 {
-                    DealSelected();
+                    DealCards(attempt);
                     return;
-                }
-                
-                if (selectedHand.HighCard == controller.GameState.LastPlayerHand.HighCard)
-                {
-                    if (selectedHand.BestSuit > controller.GameState.LastPlayerHand.BestSuit)
-                    {
-                        DealSelected();
-                        return;
-                    }
                 }
             }
             
@@ -448,31 +413,66 @@ namespace CapsaBanting
 
         private void Pass()
         {
-            AudioManager.Instance.PlaySound(Profile.VoicePass);
+            stateMachine.SetState(Constants.STATE_PLAYER_PASSING);
             Blackboard.Game.Pass(iPlayer);
         }
 
-        private void EvaluateGame()
+        public void Wait()
         {
-            if (hand.cards.Count == 0)
+            stateMachine.SetState(Constants.STATE_PLAYER_IDLE);
+        }
+        
+        public void OnEvent(GameEvent e)
+        {
+            if (e.eventName == Constants.EVENT_CARDS_DEALT || e.eventName == Constants.EVENT_TABLE_CLEAR)
             {
-                Win();
+                CheckCards();
+            }
+        }
+        
+        public void OnEvent(PLayerWinEvent e)
+        {
+            if (e.indexPlayer == Index)
+            {
+                stateMachine.SetState(Constants.STATE_PLAYER_WINNING);
             }
             else
             {
-                Lose();
+                stateMachine.SetState(Constants.STATE_PLAYER_LOSING);
             }
         }
 
-        private void Win()
+        #region State Machine Methods
+
+        public void Idle()
         {
-            AddMoney(Blackboard.Game.Bet);
+            face.Value = profile.NormalFace;
         }
-        
-        private void Lose()
+
+        public void Dealing()
         {
-            var loseMoney = hand.cards.Count * Blackboard.Game.Bet;
-            SubtractMoney(loseMoney);
+            AudioManager.Instance.PlaySound(profile.VoiceDeal);
+            face.Value = profile.HappyFace;
         }
+
+        public void Passing()
+        {
+            AudioManager.Instance.PlaySound(profile.VoicePass);
+            face.Value = profile.SadFace;
+        }
+
+        public void Winning()
+        {
+            AudioManager.Instance.PlaySound(profile.VoiceWin);
+            face.Value = profile.HappyFace;
+        }
+
+        public void Losing()
+        {
+            AudioManager.Instance.PlaySound(profile.VoiceLose);
+            face.Value = profile.SadFace;
+        }
+
+        #endregion
     }
 }

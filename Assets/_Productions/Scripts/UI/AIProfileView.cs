@@ -22,11 +22,12 @@ namespace CapsaBanting
             this.player = player;
             player.money.TakeUntilDestroy(this).Subscribe(UpdateMoney);
             player.hand.cards.ObserveCountChanged().TakeUntilDestroy(this).Subscribe(UpdateCardsLeft);
+            player.face.TakeUntilDestroy(this).Subscribe(UpdateFace);
             Blackboard.Game.ITurn.TakeUntilDestroy(this).Subscribe(UpdateBackground);
 
             UpdateCardsLeft(player.hand.cards.Count);
-            profileImage.sprite = player.Profile.NormalFace;
-            nameText.text = player.Profile.PlayerName;
+            profileImage.sprite = player.profile.NormalFace;
+            nameText.text = player.profile.PlayerName;
         }
 
         private void UpdateMoney(int money)
@@ -42,6 +43,11 @@ namespace CapsaBanting
         private void UpdateBackground(int index)
         {
             background.color = index == player.Index ? turnColor : defaultColor;
+        }
+
+        private void UpdateFace(Sprite sprite)
+        {
+            profileImage.sprite = sprite;
         }
     }
 }
